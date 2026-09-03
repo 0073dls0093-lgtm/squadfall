@@ -179,3 +179,24 @@
 O navegador conectado voltou a acessar o GitHub e confirmou o commit `b3024c0` na branch `main`, porém a navegação para `http://localhost:3000` expirou. Portanto, a execução interativa da missão Phaser continua não validada; não há base factual para marcar a vertical slice 1-2 como concluída nem para iniciar a implementação de novas mecânicas como se a validação tivesse passado.
 
 **Próxima tarefa clara:** disponibilizar o frontend em um navegador que consiga acessar o servidor local (ou usar uma sessão de Cloud Computer), conectar Phantom e executar o ciclo completo da fase 1-2. Depois da aprovação visual/interativa, iniciar o teste funcional de reféns da fase 1-5.
+
+
+## 9. Mecânica de reféns — primeira parte (2026-09-03 11:11)
+
+### Implementado
+
+A fase 1-5 agora usa o objetivo `rescue_then_extract`: os três reféns precisam ser encontrados pelo esquadrão antes de a extração ser ativada. Cada refém possui estado de vida e saúde, passa a seguir o soldado líder após o resgate, muda visualmente para `SALVO` e gera feedback audiovisual. Projéteis inimigos também colidem com reféns, aplicam dano e podem matá-los; a morte de qualquer refém causa falha da missão.
+
+### Testado
+
+`npm run build` passou após a alteração, incluindo compilação, lint, verificação de tipos, geração de páginas e otimização.
+
+### Placeholder/mockado
+
+Os reféns ainda usam formas geométricas Phaser como placeholder visual. O áudio continua procedural e a economia/recompensa permanece mockada em Zustand. A execução interativa no navegador ainda não foi validada porque o navegador conectado não alcança o servidor local.
+
+### Planejado/bloqueado
+
+Ainda falta validar visualmente a fase 1-2 e a fase 1-5 no navegador, incluindo disparos contra reféns, morte, falha e extração após resgate. Depois dessa validação, continuar com o chefe General Gorila da fase 1-6.
+
+**Próxima tarefa clara:** executar validação interativa no navegador da fase 1-5 e, se o ambiente continuar bloqueando `localhost`, disponibilizar uma prévia acessível antes de declarar a mecânica concluída.

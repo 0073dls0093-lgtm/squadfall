@@ -97,7 +97,7 @@ const audio = new AudioFX();
 // ============================================================
 // PHASE DATA
 // ============================================================
-type ObjectiveType = "extract" | "kill_all" | "kill_then_extract";
+type ObjectiveType = "extract" | "kill_all" | "kill_then_extract" | "rescue_then_extract";
 
 interface PhaseData {
   name: string;
@@ -130,7 +130,7 @@ const PHASES: Record<number, PhaseData> = {
   2: { name: "Tiro ao Alvo", world: 1, timeTarget: 45, enemyCount: 8, extraction: {x:28,y:17}, enemies: genEnemies(8, 11), objective: "kill_then_extract", enemyType: "target" },
   3: { name: "Floresta Silenciosa", world: 1, timeTarget: 60, enemyCount: 6, extraction: {x:27,y:18}, enemies: genEnemies(6, 23), objective: "kill_then_extract", enemyType: "soldier" },
   4: { name: "Nao Me Pise!", world: 1, timeTarget: 75, enemyCount: 5, extraction: {x:26,y:16}, enemies: genEnemies(5, 37), objective: "kill_then_extract", enemyType: "soldier", mines: [{x:8,y:8},{x:14,y:5},{x:18,y:12},{x:10,y:14},{x:20,y:6},{x:6,y:12},{x:22,y:10}] },
-  5: { name: "Resgate na Selva", world: 1, timeTarget: 90, enemyCount: 8, extraction: {x:28,y:18}, enemies: genEnemies(8, 41), objective: "kill_then_extract", enemyType: "soldier", hostages: [{x:14,y:6},{x:20,y:10},{x:8,y:14}] },
+  5: { name: "Resgate na Selva", world: 1, timeTarget: 90, enemyCount: 8, extraction: {x:28,y:18}, enemies: genEnemies(8, 41), objective: "rescue_then_extract", enemyType: "soldier", hostages: [{x:14,y:6},{x:20,y:10},{x:8,y:14}] },
   6: { name: "General Gorila", world: 1, timeTarget: 120, enemyCount: 12, extraction: {x:27,y:17}, enemies: genEnemies(12, 53), objective: "kill_then_extract", enemyType: "soldier" },
   7: { name: "Areias Ardentes", world: 2, timeTarget: 90, enemyCount: 10, extraction: {x:26,y:18}, enemies: genEnemies(10, 67), objective: "kill_then_extract", enemyType: "soldier" },
   8: { name: "Comboio Blindado", world: 2, timeTarget: 100, enemyCount: 12, extraction: {x:28,y:17}, enemies: genEnemies(12, 71), objective: "kill_then_extract", enemyType: "soldier" },
@@ -231,7 +231,7 @@ export class GameScene extends Phaser.Scene {
     this.tweens.add({ targets: titleText, alpha: 1, duration: 400, yoyo: true, holdTime: 1500, onComplete: () => titleText.setAlpha(0.7) });
 
     this.clockText = this.add.text(cam.width-12, 20, "0s", { fontSize:"14px", color:"#aaa", fontFamily:"monospace" }).setOrigin(1,0).setDepth(50);
-    const objLabel = this.phaseData.objective === "extract" ? "Objetivo: Alcançar extração" : `Objetivo: Eliminar alvos (0/${this.phaseData.enemyCount})`;
+    const objLabel = this.phaseData.objective === "extract" ? "Objetivo: Alcançar extração" : this.phaseData.objective === "rescue_then_extract" ? `Objetivo: Resgatar reféns (0/${this.hostagesTotal || 3})` : `Objetivo: Eliminar alvos (0/${this.phaseData.enemyCount})`;
     this.objectiveText = this.add.text(12, 20, objLabel, { fontSize:"13px", color:"#ffdd00", fontFamily:"monospace", fontStyle:"bold" }).setDepth(50);
 
     if (STAKING_REQ[world] > 0) {
@@ -284,6 +284,8 @@ export class GameScene extends Phaser.Scene {
         const tag = this.add.text(0, -26, "REFÉM", { fontSize:"8px", color:"#bbddff", fontFamily:"monospace", fontStyle:"bold" }).setOrigin(0.5);
         const hostage = this.add.container(hx, hy, [body, head, tag]);
         hostage.setData("rescued", false);
+        hostage.setData("alive", true);
+        hostage.setData("health", 2);
         hostage.setData("followIndex", -1);
         this.hostageObjects.push(hostage);
       }
@@ -391,7 +393,9 @@ export class GameScene extends Phaser.Scene {
     const elapsed = Math.floor((this.time.now - this.startTime) / 1000);
     this.clockText.setText(`${elapsed}s`);
 
-    if (this.phaseData.objective !== "extract") {
+    if (this.phaseData.objective === "rescue_then_extract") {
+      this.objectiveText.setText(`Objetivo: Resgatar reféns (${this.hostagesRescued}/${this.hostagesTotal})`);
+    } else if (this.phaseData.objective !== "extract") {
       this.objectiveText.setText(`Objetivo: Eliminar alvos (${this.enemiesKilled}/${this.phaseData.enemyCount})`);
     }
 
@@ -455,7 +459,10 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    if (!this.objectiveComplete && this.phaseData.objective !== "extract") {
+    if (!this.objectiveComplete && this.phaseData.objective === "rescue_then_extract" && this.hostagesRescued === this.hostagesTotal) {
+      this.objectiveComplete = true;
+      this.onObjectiveComplete();
+    } else if (!this.objectiveComplete && this.phaseData.objective !== "extract") {
       const aliveEnemies = this.enemies.filter(e => e.active).length;
       if (aliveEnemies === 0 && this.phaseData.enemyCount > 0) {
         this.objectiveComplete = true;
@@ -472,7 +479,7 @@ export class GameScene extends Phaser.Scene {
 
     // Hostage rescue and follow logic
     for (const hostage of this.hostageObjects) {
-      if (!hostage.active) continue;
+        if (!hostage.active || !hostage.getData("alive")) continue;
       const rescued = hostage.getData("rescued") as boolean;
       if (!rescued) {
         const hx = hostage.x, hy = hostage.y;
@@ -528,6 +535,9 @@ export class GameScene extends Phaser.Scene {
 
     const aliveSoldiers = this.squad.filter(s => s.active && s.getData("alive")).length;
     if (aliveSoldiers === 0 && !this.gameOver) {
+      this.phaseFailed();
+    }
+    if (this.phaseData.objective === "rescue_then_extract" && this.hostageObjects.some(h => !h.getData("alive")) && !this.gameOver) {
       this.phaseFailed();
     }
   }
@@ -644,6 +654,10 @@ export class GameScene extends Phaser.Scene {
           if (!s.active || !s.getData("alive")) continue;
           if (Phaser.Math.Distance.Between(b.x, b.y, s.x, s.y) < TILE/2) { this.damageSoldier(s, 1); b.destroy(); return; }
         }
+        for (const hostage of this.hostageObjects) {
+          if (!hostage.active || !hostage.getData("alive")) continue;
+          if (Phaser.Math.Distance.Between(b.x, b.y, hostage.x, hostage.y) < TILE/2) { this.damageHostage(hostage, 1); b.destroy(); return; }
+        }
       },
       onComplete: () => { if (b.active) b.destroy(); },
     });
@@ -676,6 +690,27 @@ export class GameScene extends Phaser.Scene {
         body.setAlpha(0.45);
         this.time.delayedCall(120, () => { if (s.active && body.active) body.setAlpha(1); });
       }
+    }
+  }
+
+  damageHostage(hostage: Phaser.GameObjects.Container, dmg: number) {
+    if (!hostage.active || !hostage.getData("alive")) return;
+    const hp = (hostage.getData("health") as number) - dmg;
+    hostage.setData("health", hp);
+    const body = hostage.getAt(0) as Phaser.GameObjects.Shape;
+    if (hp <= 0) {
+      hostage.setData("alive", false);
+      hostage.setData("rescued", false);
+      audio.soldierDeath();
+      for (let i = 0; i < 3; i++) {
+        (hostage.getAt(i) as Phaser.GameObjects.GameObject & { setVisible: (visible: boolean) => void }).setVisible(false);
+      }
+      const marker = this.add.text(hostage.x, hostage.y, "REFÉM MORTO", { fontSize: "9px", color: "#ff5555", fontFamily: "monospace", fontStyle: "bold" }).setOrigin(0.5);
+      this.tweens.add({ targets: marker, alpha: 0, duration: 1600, onComplete: () => marker.destroy() });
+    } else {
+      audio.soldierHit();
+      body.setAlpha(0.45);
+      this.time.delayedCall(120, () => { if (hostage.active && body.active) body.setAlpha(1); });
     }
   }
 
