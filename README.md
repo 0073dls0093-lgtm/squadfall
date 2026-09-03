@@ -21,6 +21,7 @@ docs/                    # Documentacao para IAs futuras
 - `docs/GUIA-GENERICO.md` — Regras de continuidade entre IAs
 - `docs/TRANSICAO-IMEDIATA.md` — Instrucoes de checkpoint
 - `docs/DEFINICAO-JOGO-REAL.md` — critérios obrigatórios para considerar uma mecânica ou fase realmente implementada
+- `docs/CRONOGRAMA.md` — plano oficial: primeira versão com 10 fases completas e expansão posterior até 30
 - `squad-fall-frontend/README.md` — Como instalar e rodar
 - `squad-fall-frontend/HANDOFF.md` — Estado atual e proxima tarefa
 
@@ -31,6 +32,7 @@ docs/                    # Documentacao para IAs futuras
 3. Leia `squad-fall-frontend/README.md` para instalar e rodar
 4. Verifique `squad-fall/programs/squad-fall/src/lib.rs` (contrato) e `squad-fall-frontend/src/game/GameScene.ts` (motor do jogo)
 5. Leia `docs/DEFINICAO-JOGO-REAL.md` antes de declarar qualquer fase ou sistema concluído
+6. Leia `docs/CRONOGRAMA.md` para seguir a ordem oficial das entregas
 
 ## Stack
 

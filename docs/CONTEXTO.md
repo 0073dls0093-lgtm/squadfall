@@ -6,6 +6,8 @@
 
 **Critério oficial de produto:** `docs/DEFINICAO-JOGO-REAL.md` define o que conta como jogo real, vertical slice, fase implementada, placeholder e integração Solana.
 
+**Cronograma oficial:** `docs/CRONOGRAMA.md` define a primeira versão com 10 fases completas e a expansão posterior das fases 11–30.
+
 ---
 
 ## 1. Estado Factual do Projeto
@@ -114,18 +116,19 @@ docs/
 - **Áudio procedural** adicionado (commit d939b86): classe AudioFX usando Web Audio API — shoot, hit, explosion e victory. Sem assets binários.
 - `docs/GUIA-GENERICO.md`, `docs/TRANSICAO-IMEDIATA.md` e `squad-fall-frontend/HANDOFF.md` determinam que a IA principal continue sem delegar ao usuário, trabalhe por partes e faça `git push` imediatamente após cada tarefa concluída.
 - Documento `docs/DEFINICAO-JOGO-REAL.md` criado com critérios de aceite: build não equivale a runtime, configuração não equivale a fase completa, e a vertical slice 1-2 deve ser validada no navegador antes da expansão superficial.
+- Documento `docs/CRONOGRAMA.md` criado: a versão 1.0 terá 10 fases completas; as fases 11–30 serão atualizações posteriores.
 
 ---
 
 ## 3. Proxima Tarefa Clara
 
-1. **Instalar ferramentas locais** (Solana CLI, Anchor CLI, Node.js) — ver `squad-fall-frontend/README.md`
-2. **`anchor test`** em `squad-fall/` para validar os 16 cenarios
-3. **`anchor deploy --provider.cluster devnet`** para subir o contrato e criar o token $SQUAD de verdade
-4. **Integrar recompensa on-chain no GameScene**: apos `phaseComplete()`, enviar payload ao servidor de validacao, receber prova assinada, chamar `program.methods.completePhase(...)` via `@coral-xyz/anchor` no front-end
-5. **Adicionar sprites/texturas** ao GameScene para substituir retângulos coloridos
-6. **Mobile/touch**
-7. **Auditoria de seguranca** antes do Mainnet
+1. **Completar a vertical slice real da fase 1-2** — ver `docs/DEFINICAO-JOGO-REAL.md` e `docs/CRONOGRAMA.md`
+2. **Implementar e testar as mecânicas específicas das fases 1-1 e 1-3**
+3. **Implementar fases 1-4 a 1-6**, incluindo minas, detector, reféns, chefe e veículo
+4. **Implementar e testar as fases 2-1 a 2-4** para fechar as 10 fases da versão 1.0
+5. **Adicionar sprites/texturas, mobile/touch e refinamentos de áudio/FX**
+6. **Instalar ferramentas locais e executar `anchor test`** em `squad-fall/`
+7. **Publicar na Devnet e integrar recompensas/compras on-chain** somente após servidor de validação e revisão de segurança
 
 ---
 
