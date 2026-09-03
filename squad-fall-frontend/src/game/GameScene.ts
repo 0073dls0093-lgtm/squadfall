@@ -1,4 +1,4 @@
-// GameScene.ts — Phaser top-down tactical shooter — Vertical slice 1-2 + 30 phase configs
+// GameScene.ts — Phaser top-down tactical shooter — Vertical slice 1-2 + enemy fire + 30 phase configs
 import Phaser from "phaser";
 import { useGameStore } from "@/store/useGameStore";
 
@@ -124,35 +124,30 @@ function genEnemies(count: number, seed: number): { x: number; y: number }[] {
 }
 
 const PHASES: Record<number, PhaseData> = {
-  // MUNDO 1: RECRUTA (10 SQUAD/fase)
   1: { name: "Acorda, Soldado!", world: 1, timeTarget: 30, enemyCount: 0, extraction: {x:26,y:7}, enemies: [], objective: "extract", enemyType: "target" },
   2: { name: "Tiro ao Alvo", world: 1, timeTarget: 45, enemyCount: 8, extraction: {x:28,y:17}, enemies: genEnemies(8, 11), objective: "kill_then_extract", enemyType: "target" },
   3: { name: "Floresta Silenciosa", world: 1, timeTarget: 60, enemyCount: 6, extraction: {x:27,y:18}, enemies: genEnemies(6, 23), objective: "kill_then_extract", enemyType: "soldier" },
   4: { name: "Nao Me Pise!", world: 1, timeTarget: 75, enemyCount: 5, extraction: {x:26,y:16}, enemies: genEnemies(5, 37), objective: "kill_then_extract", enemyType: "soldier" },
   5: { name: "Resgate na Selva", world: 1, timeTarget: 90, enemyCount: 8, extraction: {x:28,y:18}, enemies: genEnemies(8, 41), objective: "kill_then_extract", enemyType: "soldier" },
   6: { name: "General Gorila", world: 1, timeTarget: 120, enemyCount: 12, extraction: {x:27,y:17}, enemies: genEnemies(12, 53), objective: "kill_then_extract", enemyType: "soldier" },
-  // MUNDO 2: CABO (25 SQUAD/fase)
   7: { name: "Areias Ardentes", world: 2, timeTarget: 90, enemyCount: 10, extraction: {x:26,y:18}, enemies: genEnemies(10, 67), objective: "kill_then_extract", enemyType: "soldier" },
   8: { name: "Comboio Blindado", world: 2, timeTarget: 100, enemyCount: 12, extraction: {x:28,y:17}, enemies: genEnemies(12, 71), objective: "kill_then_extract", enemyType: "soldier" },
   9: { name: "Oasis Sangrento", world: 2, timeTarget: 80, enemyCount: 10, extraction: {x:27,y:16}, enemies: genEnemies(10, 83), objective: "kill_then_extract", enemyType: "soldier" },
   10: { name: "Torres Gemeas", world: 2, timeTarget: 110, enemyCount: 14, extraction: {x:28,y:18}, enemies: genEnemies(14, 97), objective: "kill_then_extract", enemyType: "soldier" },
   11: { name: "Campo Minado", world: 2, timeTarget: 120, enemyCount: 8, extraction: {x:26,y:17}, enemies: genEnemies(8, 103), objective: "kill_then_extract", enemyType: "soldier" },
   12: { name: "Sultao dos Misseis", world: 2, timeTarget: 150, enemyCount: 16, extraction: {x:27,y:18}, enemies: genEnemies(16, 113), objective: "kill_then_extract", enemyType: "soldier" },
-  // MUNDO 3: SARGENTO (50 SQUAD/fase, staking 100)
   13: { name: "Nevasca", world: 3, timeTarget: 120, enemyCount: 14, extraction: {x:26,y:18}, enemies: genEnemies(14, 127), objective: "kill_then_extract", enemyType: "elite" },
   14: { name: "Lagos Congelados", world: 3, timeTarget: 130, enemyCount: 12, extraction: {x:28,y:17}, enemies: genEnemies(12, 131), objective: "kill_then_extract", enemyType: "elite" },
   15: { name: "Base Subterranea", world: 3, timeTarget: 140, enemyCount: 16, extraction: {x:27,y:16}, enemies: genEnemies(16, 137), objective: "kill_then_extract", enemyType: "elite" },
   16: { name: "Avalanche", world: 3, timeTarget: 90, enemyCount: 14, extraction: {x:26,y:17}, enemies: genEnemies(14, 149), objective: "kill_then_extract", enemyType: "elite" },
   17: { name: "Sinais de Fumaca", world: 3, timeTarget: 150, enemyCount: 12, extraction: {x:28,y:18}, enemies: genEnemies(12, 151), objective: "kill_then_extract", enemyType: "elite" },
   18: { name: "O Colosso de Gelo", world: 3, timeTarget: 180, enemyCount: 18, extraction: {x:27,y:18}, enemies: genEnemies(18, 157), objective: "kill_then_extract", enemyType: "elite" },
-  // MUNDO 4: TENENTE (100 SQUAD/fase, staking 250 acum)
   19: { name: "Rios de Lava", world: 4, timeTarget: 140, enemyCount: 16, extraction: {x:26,y:18}, enemies: genEnemies(16, 163), objective: "kill_then_extract", enemyType: "elite" },
   20: { name: "Prisao da Montanha", world: 4, timeTarget: 150, enemyCount: 18, extraction: {x:28,y:17}, enemies: genEnemies(18, 167), objective: "kill_then_extract", enemyType: "elite" },
   21: { name: "Emboscada no Desfiladeiro", world: 4, timeTarget: 160, enemyCount: 20, extraction: {x:27,y:16}, enemies: genEnemies(20, 173), objective: "kill_then_extract", enemyType: "elite" },
   22: { name: "Arsenal Secreto", world: 4, timeTarget: 130, enemyCount: 16, extraction: {x:26,y:17}, enemies: genEnemies(16, 179), objective: "kill_then_extract", enemyType: "elite" },
   23: { name: "A Horda", world: 4, timeTarget: 180, enemyCount: 24, extraction: {x:28,y:18}, enemies: genEnemies(24, 181), objective: "kill_then_extract", enemyType: "elite" },
   24: { name: "General Magma", world: 4, timeTarget: 200, enemyCount: 22, extraction: {x:27,y:18}, enemies: genEnemies(22, 191), objective: "kill_then_extract", enemyType: "elite" },
-  // MUNDO 5: COMANDANTE (250 SQUAD/fase, staking 500)
   25: { name: "Muralhas do Inimigo", world: 5, timeTarget: 180, enemyCount: 20, extraction: {x:26,y:18}, enemies: genEnemies(20, 193), objective: "kill_then_extract", enemyType: "elite" },
   26: { name: "Labirinto", world: 5, timeTarget: 200, enemyCount: 18, extraction: {x:28,y:17}, enemies: genEnemies(18, 197), objective: "kill_then_extract", enemyType: "elite" },
   27: { name: "Traicao", world: 5, timeTarget: 150, enemyCount: 16, extraction: {x:27,y:16}, enemies: genEnemies(16, 199), objective: "kill_then_extract", enemyType: "elite" },
@@ -226,7 +221,6 @@ export class GameScene extends Phaser.Scene {
     this.tweens.add({ targets: titleText, alpha: 1, duration: 400, yoyo: true, holdTime: 1500, onComplete: () => titleText.setAlpha(0.7) });
 
     this.clockText = this.add.text(cam.width-12, 20, "0s", { fontSize:"14px", color:"#aaa", fontFamily:"monospace" }).setOrigin(1,0).setDepth(50);
-
     const objLabel = this.phaseData.objective === "extract" ? "Objetivo: Alcançar extração" : `Objetivo: Eliminar alvos (0/${this.phaseData.enemyCount})`;
     this.objectiveText = this.add.text(12, 20, objLabel, { fontSize:"13px", color:"#ffdd00", fontFamily:"monospace", fontStyle:"bold" }).setDepth(50);
 
@@ -305,9 +299,7 @@ export class GameScene extends Phaser.Scene {
       const inner = this.add.circle(0, 0, TILE/6, 0xffffff);
       const dot = this.add.circle(0, 0, 4, 0xcc0000);
       const c = this.add.container(x, y, [outer, mid, inner, dot]);
-      c.setData("health", hp);
-      c.setData("maxHealth", hp);
-      c.setData("type", "target");
+      c.setData("health", hp); c.setData("maxHealth", hp); c.setData("type", "target");
       return c;
     } else {
       const body = this.add.rectangle(0, 0, TILE-14, TILE-14, color);
@@ -316,9 +308,7 @@ export class GameScene extends Phaser.Scene {
       const gun = this.add.rectangle(-15, 0, 12, 4, 0x333333);
       const tag = this.add.text(0, -26, type === "elite" ? "ELITE" : "INIM", { fontSize:"8px", color:"#fcc", fontFamily:"monospace" }).setOrigin(0.5);
       const c = this.add.container(x, y, [body, helmet, gun, tag]);
-      c.setData("health", hp);
-      c.setData("maxHealth", hp);
-      c.setData("type", type);
+      c.setData("health", hp); c.setData("maxHealth", hp); c.setData("type", type);
       return c;
     }
   }
@@ -402,6 +392,27 @@ export class GameScene extends Phaser.Scene {
       const l = this.squad[0];
       if (Phaser.Math.Distance.Between(l.x, l.y, this.moveTarget.x, this.moveTarget.y) < 8) this.moveTarget = null;
       else this.moveSquad(this.moveTarget.x, this.moveTarget.y);
+    }
+
+    // Enemy fire — enemies of type soldier/elite shoot at nearest alive soldier
+    for (const e of this.enemies) {
+      if (!e.active) continue;
+      const eType = e.getData("type") as string;
+      if (eType === "target") continue;
+      const lastShot = (e.getData("lastShot") as number) || 0;
+      const fireRate = eType === "elite" ? 1800 : 2500;
+      if (this.time.now - lastShot < fireRate) continue;
+      let target: Phaser.GameObjects.Container | null = null;
+      let minDist = Infinity;
+      for (const s of this.squad) {
+        if (!s.active || !s.getData("alive")) continue;
+        const d = Phaser.Math.Distance.Between(e.x, e.y, s.x, s.y);
+        if (d < minDist) { minDist = d; target = s; }
+      }
+      if (target && minDist < TILE * 10) {
+        e.setData("lastShot", this.time.now);
+        this.enemyShoot(e.x, e.y, target.x, target.y);
+      }
     }
 
     if (!this.objectiveComplete && this.phaseData.objective !== "extract") {
@@ -506,6 +517,26 @@ export class GameScene extends Phaser.Scene {
       }
       audio.hit();
     }
+  }
+
+  // Enemy fires at player position — bidirectional combat
+  enemyShoot(fx: number, fy: number, tx: number, ty: number) {
+    const a = Math.atan2(ty - fy, tx - fx);
+    const b = this.add.rectangle(fx, fy, 7, 3, 0xff4444);
+    b.setRotation(a);
+    const flash = this.add.circle(fx + Math.cos(a)*14, fy + Math.sin(a)*14, 5, 0xff6666, 0.8);
+    this.tweens.add({ targets: flash, alpha: 0, scaleX: 2, scaleY: 2, duration: 120, onComplete: () => flash.destroy() });
+    audio.shoot();
+    this.tweens.add({
+      targets: b, x: fx + Math.cos(a)*500, y: fy + Math.sin(a)*500, duration: 400,
+      onUpdate: () => {
+        for (const s of this.squad) {
+          if (!s.active || !s.getData("alive")) continue;
+          if (Phaser.Math.Distance.Between(b.x, b.y, s.x, s.y) < TILE/2) { this.damageSoldier(s, 1); b.destroy(); return; }
+        }
+      },
+      onComplete: () => { if (b.active) b.destroy(); },
+    });
   }
 
   damageSoldier(s: Phaser.GameObjects.Container, dmg: number) {
