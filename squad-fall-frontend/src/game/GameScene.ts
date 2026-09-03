@@ -1,4 +1,4 @@
-// GameScene.ts — Phaser top-down tactical shooter — 30 phases (5 worlds)
+// GameScene.ts — Phaser top-down tactical shooter — 30 phases (5 worlds) + procedural audio
 import Phaser from "phaser";
 import { useGameStore } from "@/store/useGameStore";
 
@@ -6,6 +6,72 @@ const TILE = 48;
 const C_GRASS = 0x4a7c2e, C_SOLDIER = 0x33cc33;
 const C_ENEMY = 0xcc3333, C_EXTRACTION = 0xffdd00, C_BULLET = 0xffff00;
 const NAMES = ["Razor","Ghost","Tank","Hawk","Wolf","Ace","Blade","Storm","Fox","Bear","Snake","Eagle","Reaper","Viper","Phoenix","Cobra"];
+
+// ============================================================
+// AUDIO — Procedural Web Audio (no binary assets needed)
+// ============================================================
+class AudioFX {
+  private ctx: AudioContext | null = null;
+  private master: GainNode | null = null;
+  enabled = true;
+
+  private ensure() {
+    if (!this.ctx) {
+      try {
+        this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        this.master = this.ctx.createGain();
+        this.master.gain.value = 0.3;
+        this.master.connect(this.ctx.destination);
+      } catch { this.enabled = false; }
+    }
+    if (this.ctx && this.ctx.state === "suspended") this.ctx.resume();
+    return this.ctx;
+  }
+
+  shoot() {
+    const ctx = this.ensure(); if (!ctx || !this.master || !this.enabled) return;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = "square"; o.frequency.setValueAtTime(880, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(110, ctx.currentTime + 0.1);
+    g.gain.setValueAtTime(0.2, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+    o.connect(g).connect(this.master); o.start(); o.stop(ctx.currentTime + 0.1);
+  }
+
+  hit() {
+    const ctx = this.ensure(); if (!ctx || !this.master || !this.enabled) return;
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = "sawtooth"; o.frequency.setValueAtTime(200, ctx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(50, ctx.currentTime + 0.08);
+    g.gain.setValueAtTime(0.15, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
+    o.connect(g).connect(this.master); o.start(); o.stop(ctx.currentTime + 0.08);
+  }
+
+  explosion() {
+    const ctx = this.ensure(); if (!ctx || !this.master || !this.enabled) return;
+    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.3, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2);
+    const src = ctx.createBufferSource(); src.buffer = buf;
+    const g = ctx.createGain(); g.gain.value = 0.4;
+    const f = ctx.createBiquadFilter(); f.type = "lowpass"; f.frequency.value = 800;
+    src.connect(f).connect(g).connect(this.master); src.start();
+  }
+
+  victory() {
+    const ctx = this.ensure(); if (!ctx || !this.master || !this.enabled) return;
+    [523, 659, 784, 1047].forEach((freq, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = "triangle"; o.frequency.value = freq;
+      g.gain.setValueAtTime(0, ctx.currentTime + i * 0.12);
+      g.gain.linearRampToValueAtTime(0.15, ctx.currentTime + i * 0.12 + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.12 + 0.3);
+      o.connect(g).connect(this.master!); o.start(ctx.currentTime + i * 0.12); o.stop(ctx.currentTime + i * 0.12 + 0.3);
+    });
+  }
+}
+const audio = new AudioFX();
 
 interface PhaseData {
   name: string;
@@ -37,7 +103,6 @@ const PHASES: Record<number, PhaseData> = {
   4: { name: "Nao Me Pise!", world: 1, timeTarget: 75, enemyCount: 5, extraction: {x:26,y:16}, enemies: genEnemies(5, 37) },
   5: { name: "Resgate na Selva", world: 1, timeTarget: 90, enemyCount: 8, extraction: {x:28,y:18}, enemies: genEnemies(8, 41) },
   6: { name: "General Gorila", world: 1, timeTarget: 120, enemyCount: 12, extraction: {x:27,y:17}, enemies: genEnemies(12, 53) },
-
   // MUNDO 2: CABO — "Tempestade no Deserto" (25 SQUAD/fase)
   7: { name: "Areias Ardentes", world: 2, timeTarget: 90, enemyCount: 10, extraction: {x:26,y:18}, enemies: genEnemies(10, 67) },
   8: { name: "Comboio Blindado", world: 2, timeTarget: 100, enemyCount: 12, extraction: {x:28,y:17}, enemies: genEnemies(12, 71) },
@@ -45,7 +110,6 @@ const PHASES: Record<number, PhaseData> = {
   10: { name: "Torres Gemeas", world: 2, timeTarget: 110, enemyCount: 14, extraction: {x:28,y:18}, enemies: genEnemies(14, 97) },
   11: { name: "Campo Minado", world: 2, timeTarget: 120, enemyCount: 8, extraction: {x:26,y:17}, enemies: genEnemies(8, 103) },
   12: { name: "Sultao dos Misseis", world: 2, timeTarget: 150, enemyCount: 16, extraction: {x:27,y:18}, enemies: genEnemies(16, 113) },
-
   // MUNDO 3: SARGENTO — "Frente Gelada" (50 SQUAD/fase, staking 100)
   13: { name: "Nevasca", world: 3, timeTarget: 120, enemyCount: 14, extraction: {x:26,y:18}, enemies: genEnemies(14, 127) },
   14: { name: "Lagos Congelados", world: 3, timeTarget: 130, enemyCount: 12, extraction: {x:28,y:17}, enemies: genEnemies(12, 131) },
@@ -53,7 +117,6 @@ const PHASES: Record<number, PhaseData> = {
   16: { name: "Avalanche", world: 3, timeTarget: 90, enemyCount: 14, extraction: {x:26,y:17}, enemies: genEnemies(14, 149) },
   17: { name: "Sinais de Fumaca", world: 3, timeTarget: 150, enemyCount: 12, extraction: {x:28,y:18}, enemies: genEnemies(12, 151) },
   18: { name: "O Colosso de Gelo", world: 3, timeTarget: 180, enemyCount: 18, extraction: {x:27,y:18}, enemies: genEnemies(18, 157) },
-
   // MUNDO 4: TENENTE — "Inferno Vulcanico" (100 SQUAD/fase, staking 250 acum)
   19: { name: "Rios de Lava", world: 4, timeTarget: 140, enemyCount: 16, extraction: {x:26,y:18}, enemies: genEnemies(16, 163) },
   20: { name: "Prisao da Montanha", world: 4, timeTarget: 150, enemyCount: 18, extraction: {x:28,y:17}, enemies: genEnemies(18, 167) },
@@ -61,7 +124,6 @@ const PHASES: Record<number, PhaseData> = {
   22: { name: "Arsenal Secreto", world: 4, timeTarget: 130, enemyCount: 16, extraction: {x:26,y:17}, enemies: genEnemies(16, 179) },
   23: { name: "A Horda", world: 4, timeTarget: 180, enemyCount: 24, extraction: {x:28,y:18}, enemies: genEnemies(24, 181) },
   24: { name: "General Magma", world: 4, timeTarget: 200, enemyCount: 22, extraction: {x:27,y:18}, enemies: genEnemies(22, 191) },
-
   // MUNDO 5: COMANDANTE — "A Fortaleza Final" (250 SQUAD/fase, staking 500)
   25: { name: "Muralhas do Inimigo", world: 5, timeTarget: 180, enemyCount: 20, extraction: {x:26,y:18}, enemies: genEnemies(20, 193) },
   26: { name: "Labirinto", world: 5, timeTarget: 200, enemyCount: 18, extraction: {x:28,y:17}, enemies: genEnemies(18, 197) },
@@ -254,6 +316,7 @@ export class GameScene extends Phaser.Scene {
     b.setRotation(a);
     const flash = this.add.circle(s.x + Math.cos(a)*16, s.y + Math.sin(a)*16, 6, 0xffaa00, 0.9);
     this.tweens.add({ targets: flash, alpha: 0, scaleX: 2, scaleY: 2, duration: 150, onComplete: () => flash.destroy() });
+    audio.shoot();
     this.tweens.add({
       targets: b, x: s.x + Math.cos(a)*600, y: s.y + Math.sin(a)*600, duration: 350,
       onUpdate: () => {
@@ -271,12 +334,14 @@ export class GameScene extends Phaser.Scene {
     if (hp <= 0) {
       this.enemiesKilled++; this.kills++;
       const px = e.x, py = e.y; e.destroy();
+      audio.explosion();
       for (let i = 0; i < 6; i++) {
         const p = this.add.circle(px + (Math.random()-0.5)*20, py + (Math.random()-0.5)*20, 3+Math.random()*4, 0xff6600);
         this.tweens.add({ targets: p, alpha: 0, scaleX: 3, scaleY: 3, duration: 400, onComplete: () => p.destroy() });
       }
     } else {
       e.setData("health", hp); e.setTint(0xffffff);
+      audio.hit();
       this.time.delayedCall(80, () => { if (e.active) e.setTint(C_ENEMY); });
     }
   }
@@ -295,6 +360,7 @@ export class GameScene extends Phaser.Scene {
     const reward = (BASE_REWARDS[world] || 10) * stars;
     store.onPhaseComplete(stars, elapsed, this.kills, alive);
     store.addSquad(reward);
+    audio.victory();
 
     const cx = this.cameras.main.width/2, cy = this.cameras.main.height/2;
     this.add.rectangle(cx, cy, this.cameras.main.width, this.cameras.main.height, 0x000000, 0.75).setDepth(200);
