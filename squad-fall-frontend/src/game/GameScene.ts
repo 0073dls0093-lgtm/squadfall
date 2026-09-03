@@ -1,5 +1,5 @@
 // GameScene.ts — Phaser top-down tactical shooter
-import Phaser from "phaser";
+import * as Phaser from "phaser";
 import { useGameStore } from "@/store/useGameStore";
 
 const TILE = 48;

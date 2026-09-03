@@ -1,13 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import Phaser from "phaser";
-import { GameScene } from "@/game/GameScene";
 import { useGameStore } from "@/store/useGameStore";
 import { useWallet } from "@solana/wallet-adapter-react";
 
 export default function Home() {
   const gameRef = useRef<HTMLDivElement>(null);
-  const phaserRef = useRef<Phaser.Game | null>(null);
+  const phaserRef = useRef<any>(null);
   const { connected } = useWallet();
   const { status, world, phase, startGame, squadBalance, phaseResult } = useGameStore();
   const [booting, setBooting] = useState(false);
@@ -16,22 +14,29 @@ export default function Home() {
     if (!connected || status !== "playing" || phaserRef.current || booting) return;
     if (!gameRef.current) return;
     setBooting(true);
-    phaserRef.current = new Phaser.Game({
-      type: Phaser.AUTO,
-      parent: gameRef.current,
-      width: 1440,
-      height: 960,
-      backgroundColor: "#1a1a1a",
-      scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
-      physics: { default: "arcade", arcade: { gravity: { x: 0, y: 0 } } },
-      scene: [GameScene],
-    });
-    return () => { phaserRef.current?.destroy(true); phaserRef.current = null; setBooting(false); };
+    let cancelled = false;
+    (async () => {
+      const PhaserModule = await import("phaser");
+      const { GameScene } = await import("@/game/GameScene");
+      const Phaser = (PhaserModule as any).default ?? PhaserModule;
+      if (cancelled || !gameRef.current) return;
+      phaserRef.current = new Phaser.Game({
+        type: Phaser.AUTO,
+        parent: gameRef.current,
+        width: 1440,
+        height: 960,
+        backgroundColor: "#1a1a1a",
+        scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
+        physics: { default: "arcade", arcade: { gravity: { x: 0, y: 0 } } },
+        scene: [GameScene],
+      });
+    })();
+    return () => { cancelled = true; phaserRef.current?.destroy(true); phaserRef.current = null; setBooting(false); };
   }, [connected, status, booting]);
 
   useEffect(() => {
     if (status === "playing" && phaserRef.current) {
-      const scene = phaserRef.current.scene.getScene("GameScene") as GameScene;
+      const scene = phaserRef.current.scene.getScene("GameScene") as any;
       scene.scene.restart({ phaseId: phase });
     }
   }, [phase, status]);

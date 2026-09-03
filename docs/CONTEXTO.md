@@ -27,10 +27,10 @@
 
 | Item | Planejado (GDD) | Implementado (codigo) | Testado |
 |------|:---:|:---:|:---:|
-| Layout + WalletProvider (Phantom) | ✅ | ✅ | ⚠️ Não executado |
+| Layout + WalletProvider (Phantom) | ✅ | ✅ | ✅ Build Next.js validado |
 | HUD (saldo, vidas, fase, mundo) | ✅ | ✅ | ⚠️ Não executado |
-| GameScene (movimento WASD + clique) | ✅ | ✅ | ⚠️ Não executado |
-| GameScene (tiro, inimigos, extracao) | ✅ | ✅ | ⚠️ Não executado |
+| GameScene (movimento WASD + clique) | ✅ | ✅ | ✅ Build Next.js validado |
+| GameScene (tiro, inimigos, extracao) | ✅ | ✅ | ✅ Build Next.js validado |
 | Tela de vitoria com estrelas | ✅ | ✅ | ⚠️ Não executado |
 | Integracao on-chain de recompensas | ✅ | ❌ (mock em Zustand) | ❌ |
 | 30 fases no objeto PHASES | ✅ | ❌ (apenas 3: 1-1, 1-2, 1-3) | ❌ |
@@ -95,6 +95,12 @@ squad-fall-frontend/
 - Sem servidor de validacao
 - Sem mobile/touch
 - Sem auditoria
+
+### Verificação técnica recente
+
+- O build inicial falhou por import incompatível do Phaser (`default export`) e conflito JSX dos providers Solana.
+- Correções aplicadas: import namespace do Phaser, carregamento dinâmico do Phaser no navegador para evitar `window` no SSR e compatibilidade de tipos nos providers.
+- `npm run build` aprovado em 03/09/2026; páginas `/` e `/_not-found` foram prerenderizadas.
 
 ---
 
