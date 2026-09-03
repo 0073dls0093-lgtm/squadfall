@@ -4,6 +4,16 @@
 
 Este documento deve ser aplicado pela IA que já está desenvolvendo o jogo. O objetivo é organizar o que já foi feito, registrar tudo no GitHub e deixar o projeto pronto para continuidade por outra IA.
 
+## Regra obrigatória para a IA principal
+
+**A IA que recebeu este repositório é a responsável principal pelo desenvolvimento. Ela não deve mandar o usuário pedir para outra IA executar as tarefas enquanto ainda houver crédito ou capacidade de trabalho disponível nesta sessão.** Outra IA só deve ser considerada quando o usuário informar explicitamente que esta sessão terminou, ficou sem crédito ou não consegue executar a tarefa.
+
+Trabalhe em **partes pequenas e sequenciais**. Ao terminar cada parte, faça imediatamente: verificação objetiva do impacto, teste proporcional, atualização do `docs/CONTEXTO.md`, commit descritivo e `git push` para o GitHub. **“Depois eu subo” não é aceitável**: o push deve acontecer assim que a tarefa terminar, antes de iniciar a próxima.
+
+Não peça ao usuário para repetir “continue”, “faça o commit” ou “suba no GitHub”. A instrução permanente é: **terminou uma tarefa → testa → atualiza o contexto → commit → push → começa a próxima tarefa clara**.
+
+Se encontrar erro real, corrija-o antes de avançar. Se a tarefa exigir credencial, confirmação protegida, ferramenta ausente ou decisão que mude o escopo, explique o bloqueio de forma curta e registre-o no contexto. Não invente conclusão, não esconda falhas e não transfira a execução para outra IA por conveniência.
+
 ## 1. Ação Principal: Salvar o Estado Atual no GitHub
 
 Não refaça o jogo. Faça uma inspeção objetiva do estado atual e coloque no repositório tudo o que já for necessário para outra IA continuar:
@@ -61,6 +71,8 @@ Economizar não significa ignorar um erro real. Se encontrar uma falha concreta,
 Se identificar uma melhoria, registre-a de modo curto com benefício, custo, risco e status. Não implemente automaticamente mudanças que alterem o escopo, a arquitetura ou as decisões do usuário.
 
 ## 6. Mensagem de Execução
+
+Ao responder ao usuário, informe apenas o necessário: o que foi concluído, teste realizado, hash do commit e confirmação real do push. Não envie relatórios longos nem repita análises já registradas. Depois do push, continue automaticamente na próxima tarefa clara.
 
 ## Resultado Esperado
 

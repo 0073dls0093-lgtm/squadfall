@@ -4,9 +4,9 @@
 
 ## 1. Objetivo
 
-Este é um guia para qualquer IA que venha a trabalhar no Squadfall depois da IA anterior. O desenvolvimento ocorre com uma IA por vez. O usuário passa o bastão após cada etapa; a próxima IA deve consultar o GitHub e continuar do ponto registrado.
+Este é um guia para qualquer IA que venha a trabalhar no Squadfall. A IA que recebeu a sessão é a responsável principal e deve continuar o desenvolvimento enquanto tiver crédito ou capacidade disponível. O usuário só passa o bastão quando informar explicitamente que a sessão terminou, ficou sem crédito ou está bloqueada.
 
-O projeto é compartilhado entre várias IAs, mas não é editado simultaneamente. Este guia orienta sem impedir ideias melhores. A IA pode sugerir melhorias, porém deve explicar benefício, custo, risco e impacto antes de mudanças relevantes.
+O projeto pode ser compartilhado entre várias IAs, mas não deve ser editado simultaneamente. A IA não deve mandar o usuário pedir para outra IA fazer uma tarefa que ela própria ainda pode executar. Este guia orienta sem impedir ideias melhores, mas mudanças relevantes devem respeitar o escopo e ser registradas.
 
 ## 2. O Que Ler Primeiro
 
@@ -49,15 +49,17 @@ Atualizar o `docs/CONTEXTO.md` ao final de cada etapa relevante:
 
 Não declarar como concluído algo que apenas está no GDD. Separar planejamento, implementação, testes e hipóteses.
 
-## 5. Trabalho em Pequenas Etapas
+## 5. Trabalho em Pequenas Etapas — Regra Operacional Obrigatória
 
 Dividir tarefas grandes em partes concluíveis. A IA não deve executar apenas uma ação e parar se ainda existirem partes relacionadas dentro da tarefa atual. Deve avançar de forma dinâmica até concluir o escopo atual.
 
-Não iniciar uma nova funcionalidade depois de concluir a tarefa atual.
+Ao terminar uma parte, a sequência obrigatória é: **testar → atualizar `docs/CONTEXTO.md` → fazer commit → fazer push para o GitHub → iniciar a próxima tarefa clara**. Não deixar o push para depois, não pedir ao usuário para repetir “continue” e não parar apenas porque uma parte foi concluída se já houver uma próxima tarefa registrada.
+
+Não iniciar uma funcionalidade sem relação com o escopo atual. Porém, depois que o checkpoint da tarefa atual estiver publicado, começar automaticamente a próxima tarefa clara do contexto, sem exigir nova autorização do usuário.
 
 ## 6. Checkpoints Frequentes no GitHub
 
-Salvar no GitHub após cada parte relevante ou antes de qualquer pausa. Isso protege o trabalho se os créditos do dia acabarem, se a sessão for interrompida ou se outra IA assumir.
+Salvar no GitHub **imediatamente após cada parte relevante**, antes de iniciar a próxima. Isso protege o trabalho se os créditos do dia acabarem, se a sessão for interrompida ou se outra IA assumir.
 
 Se não houver acesso para fazer push, informar a limitação com clareza. Nunca afirmar que uma alteração está no GitHub se ela não foi enviada.
 

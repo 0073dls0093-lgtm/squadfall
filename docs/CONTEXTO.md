@@ -101,6 +101,7 @@ squad-fall-frontend/
 - O build inicial falhou por import incompatível do Phaser (`default export`) e conflito JSX dos providers Solana.
 - Correções aplicadas: import namespace do Phaser, carregamento dinâmico do Phaser no navegador para evitar `window` no SSR e compatibilidade de tipos nos providers.
 - `npm run build` aprovado em 03/09/2026; páginas `/` e `/_not-found` foram prerenderizadas.
+- `docs/GUIA-GENERICO.md`, `docs/TRANSICAO-IMEDIATA.md` e `squad-fall-frontend/HANDOFF.md` agora determinam que a IA principal continue sem delegar ao usuário, trabalhe por partes e faça `git push` imediatamente após cada tarefa concluída.
 
 ---
 
