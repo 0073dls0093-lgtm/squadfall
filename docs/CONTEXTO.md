@@ -1,6 +1,6 @@
 # CONTEXTO — Squad Fall
 
-**Ultima atualização:** 2026-09-03
+**Ultima atualização:** 2026-09-03 (commit 08e4552)
 **Repositório:** https://github.com/0073dls0093-lgtm/squadfall
 
 ---
@@ -31,9 +31,9 @@
 | HUD (saldo, vidas, fase, mundo) | ✅ | ✅ | ⚠️ Não executado |
 | GameScene (movimento WASD + clique) | ✅ | ✅ | ✅ Build Next.js validado |
 | GameScene (tiro, inimigos, extracao) | ✅ | ✅ | ✅ Build Next.js validado |
-| Tela de vitoria com estrelas | ✅ | ✅ | ⚠️ Não executado |
+| Tela de vitoria com estrelas + kills | ✅ | ✅ | ⚠️ Não executado |
+| 30 fases no objeto PHASES | ✅ | ✅ (30/30) | ⚠️ Não executado |
 | Integracao on-chain de recompensas | ✅ | ❌ (mock em Zustand) | ❌ |
-| 30 fases no objeto PHASES | ✅ | ❌ (apenas 3: 1-1, 1-2, 1-3) | ❌ |
 | Sprites / audio / FX | ✅ | ❌ (retângulos coloridos) | ❌ |
 | Controles mobile/touch | ✅ | ❌ | ❌ |
 | NFT marketplace | ✅ | ❌ | ❌ |
@@ -75,7 +75,7 @@ squad-fall-frontend/
 │   │   ├── WalletProvider.tsx      ← Phantom + Solana wallet adapter
 │   │   └── HUD.tsx                  ← Overlay (saldo, vidas, fase)
 │   ├── game/
-│   │   └── GameScene.ts            ← Phaser (movimento, tiro, inimigos, extracao, vitoria)
+│   │   └── GameScene.ts            ← Phaser — 30 fases (5 mundos × 6), movimento, tiro, inimigos, extracao, vitoria
 │   └── store/
 │       └── useGameStore.ts         ← Zustand (estado global)
 ├── package.json
@@ -90,7 +90,6 @@ squad-fall-frontend/
 - Token $SQUAD nao esta na blockchain (codigo pronto, nunca deployado)
 - Testes nunca foram executados (precisa de Anchor CLI local)
 - Recompensas on-chain nao integradas ao cliente (saldo mockado em Zustand)
-- Fases 4-30 nao construidas (apenas 3 fases no objeto PHASES)
 - Sem sprites, audio, FX (tudo retângulo colorido)
 - Sem servidor de validacao
 - Sem mobile/touch
@@ -102,6 +101,7 @@ squad-fall-frontend/
 - Correções aplicadas: import namespace do Phaser, carregamento dinâmico do Phaser no navegador para evitar `window` no SSR e compatibilidade de tipos nos providers.
 - `npm run build` aprovado em 03/09/2026; páginas `/` e `/_not-found` foram prerenderizadas.
 - `docs/GUIA-GENERICO.md`, `docs/TRANSICAO-IMEDIATA.md` e `squad-fall-frontend/HANDOFF.md` agora determinam que a IA principal continue sem delegar ao usuário, trabalhe por partes e faça `git push` imediatamente após cada tarefa concluída.
+- **08/09 commit `08e4552`**: objeto PHASES expandido de 3 para 30 fases (5 mundos × 6). Nomes, timeTarget, enemyCount, extraction por fase conforme GDD. Inimigos via LCG determinístico (mesmo seed = mesmo layout). Padrões de parede por mundo (cor + arranjo) para variedade visual. HUD mostra nome do mundo + staking para Mundos 3+. Tela de vitória com kills e jogo-completo na fase 30.
 
 ---
 
@@ -111,10 +111,9 @@ squad-fall-frontend/
 2. **`anchor test`** em `squad-fall/` para validar os 16 cenarios
 3. **`anchor deploy --provider.cluster devnet`** para subir o contrato e criar o token $SQUAD de verdade
 4. **Integrar recompensa on-chain no GameScene**: apos `phaseComplete()`, enviar payload ao servidor de validacao, receber prova assinada, chamar `program.methods.completePhase(...)` via `@coral-xyz/anchor` no front-end
-5. **Construir fases 4-30** no objeto `PHASES` do GameScene (dados estao no GDD)
-6. **Adicionar sprites, audio, FX**
-7. **Mobile/touch**
-8. **Auditoria de seguranca** antes do Mainnet
+5. **Adicionar sprites, audio, FX** (GameScene ainda usa retângulos)
+6. **Mobile/touch**
+7. **Auditoria de seguranca** antes do Mainnet
 
 ---
 
@@ -136,6 +135,7 @@ squad-fall-frontend/
 - **Phaser.js**: Engine 2D maduro, integra com React via refs
 - **Zustand**: Estado leve, sincroniza Phaser + React sem overhead de Redux
 - **Mock rewards**: Jogo atualiza saldo local em Zustand; mint real exige contrato deployado + servidor de assinatura
+- **LCG deterministico para inimigos**: Mesmo seed gera mesmo layout — reproducibilidade para teste/audit e dificuldade previsivel
 
 ---
 
