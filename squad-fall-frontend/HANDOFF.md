@@ -21,6 +21,8 @@
 
 ## Continuidade — próxima tarefa
 
+Antes de declarar uma fase ou sistema concluído, consultar `../docs/DEFINICAO-JOGO-REAL.md`. Configurações de fases e build aprovado não substituem validação no navegador; placeholders devem continuar identificados como placeholders.
+
 **Regra de execução:** a IA que estiver trabalhando nesta sessão é a responsável principal. Ela deve continuar automaticamente enquanto houver crédito/capacidade disponível, dividir o trabalho em partes pequenas e, ao concluir cada parte, testar, atualizar `docs/CONTEXTO.md`, fazer commit e executar `git push` imediatamente. Não deve pedir ao usuário para chamar outra IA nem deixar o push para depois. Outra IA só entra quando o usuário informar explicitamente que esta sessão terminou, ficou sem crédito ou está bloqueada.
 
 1. **Instalar ferramentas locais** (Solana CLI, Anchor CLI, Node.js) — ver README.md.

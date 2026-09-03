@@ -4,6 +4,8 @@
 **Repositório:** https://github.com/0073dls0093-lgtm/squadfall
 **Último commit:** d939b86 — audio procedural no GameScene
 
+**Critério oficial de produto:** `docs/DEFINICAO-JOGO-REAL.md` define o que conta como jogo real, vertical slice, fase implementada, placeholder e integração Solana.
+
 ---
 
 ## 1. Estado Factual do Projeto
@@ -109,7 +111,9 @@ docs/
 - Correções aplicadas: import namespace do Phaser, carregamento dinâmico do Phaser no navegador para evitar `window` no SSR e compatibilidade de tipos nos providers.
 - `npm run build` aprovado em 03/09/2026; páginas `/` e `/_not-found` foram prerenderizadas.
 - **30 fases** implementadas no objeto `PHASES` do GameScene (commit 08e4552). Nomes, timeTarget, enemyCount e extração por fase conforme GDD. Inimigos posicionados via LCG determinístico.
-- **Áudio procedural** adicionado (commit d939b86): classe AudioFX usando Web Audio API — shoot (square osc), hit (sawtooth osc), explosion (noise buffer + lowpass), victory (arpejo C-E-G-C). Sem assets binários.
+- **Áudio procedural** adicionado (commit d939b86): classe AudioFX usando Web Audio API — shoot, hit, explosion e victory. Sem assets binários.
+- `docs/GUIA-GENERICO.md`, `docs/TRANSICAO-IMEDIATA.md` e `squad-fall-frontend/HANDOFF.md` determinam que a IA principal continue sem delegar ao usuário, trabalhe por partes e faça `git push` imediatamente após cada tarefa concluída.
+- Documento `docs/DEFINICAO-JOGO-REAL.md` criado com critérios de aceite: build não equivale a runtime, configuração não equivale a fase completa, e a vertical slice 1-2 deve ser validada no navegador antes da expansão superficial.
 
 ---
 

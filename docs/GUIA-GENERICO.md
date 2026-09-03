@@ -18,6 +18,7 @@ Ao iniciar, ler nesta ordem:
 4. `squad-fall-frontend/README.md` — como instalar e rodar
 5. `squad-fall/programs/squad-fall/src/lib.rs` — contrato inteligente
 6. `squad-fall-frontend/src/game/GameScene.ts` — motor do jogo
+7. `docs/DEFINICAO-JOGO-REAL.md` — definição obrigatória de implementação real e critérios de aceite
 
 Não depender da memória de conversas anteriores. O GitHub é a fonte do código e os arquivos de contexto são a fonte do estado do projeto.
 
