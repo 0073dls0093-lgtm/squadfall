@@ -1,4 +1,4 @@
-// GameScene.ts — Phaser top-down tactical shooter — Vertical slice 1-2 + enemy fire + 30 phase configs
+// GameScene.ts — Phaser top-down tactical shooter — Vertical slice 1-3 + cover/collision + 30 phase configs
 import Phaser from "phaser";
 import { useGameStore } from "@/store/useGameStore";
 
@@ -465,7 +465,17 @@ export class GameScene extends Phaser.Scene {
       if (!s.active || !s.getData("alive")) continue;
       const ox = (i % 2) * 12 - 6, oy = Math.floor(i/2) * 12 - 6;
       const a = Math.atan2(ty + oy - s.y, tx + ox - s.x);
-      s.x += Math.cos(a) * 2.2; s.y += Math.sin(a) * 2.2;
+      const nx = s.x + Math.cos(a) * 2.2;
+      const ny = s.y + Math.sin(a) * 2.2;
+      // Wall collision — block movement into walls (slide along axis if possible)
+      const tx2 = Math.floor(nx / TILE), ty2 = Math.floor(ny / TILE);
+      const cx = Math.floor(s.x / TILE), cy = Math.floor(s.y / TILE);
+      if (this.isWall(tx2, ty2)) {
+        if (!this.isWall(tx2, cy)) { s.x = nx; }
+        else if (!this.isWall(cx, ty2)) { s.y = ny; }
+      } else {
+        s.x = nx; s.y = ny;
+      }
       (s.getAt(2) as Phaser.GameObjects.Rectangle).setRotation(a);
     }
   }
@@ -474,6 +484,10 @@ export class GameScene extends Phaser.Scene {
     const shooter = this.squad.find(s => s.active && s.getData("alive"));
     if (!shooter) return;
     const a = Math.atan2(wy - shooter.y, wx - shooter.x);
+    // Block shot if a wall is directly in front of the shooter (cover mechanic)
+    const frontX = Math.floor((shooter.x + Math.cos(a) * 24) / TILE);
+    const frontY = Math.floor((shooter.y + Math.sin(a) * 24) / TILE);
+    if (this.isWall(frontX, frontY)) return;
     const b = this.add.rectangle(shooter.x, shooter.y, 8, 3, C_BULLET);
     b.setRotation(a);
     const flash = this.add.circle(shooter.x + Math.cos(a)*16, shooter.y + Math.sin(a)*16, 6, 0xffaa00, 0.9);
@@ -519,9 +533,12 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
-  // Enemy fires at player position — bidirectional combat
   enemyShoot(fx: number, fy: number, tx: number, ty: number) {
     const a = Math.atan2(ty - fy, tx - fx);
+    // Block enemy shot if wall directly in front (cover protects player)
+    const frontX = Math.floor((fx + Math.cos(a) * 24) / TILE);
+    const frontY = Math.floor((fy + Math.sin(a) * 24) / TILE);
+    if (this.isWall(frontX, frontY)) return;
     const b = this.add.rectangle(fx, fy, 7, 3, 0xff4444);
     b.setRotation(a);
     const flash = this.add.circle(fx + Math.cos(a)*14, fy + Math.sin(a)*14, 5, 0xff6666, 0.8);
