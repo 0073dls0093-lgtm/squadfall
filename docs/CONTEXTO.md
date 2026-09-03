@@ -1,12 +1,10 @@
 # CONTEXTO — Squad Fall
 
-**Ultima atualização:** 2026-09-03 (pós-áudio)
+**Ultima atualização:** 2026-09-03 (pós-vertical slice 1-2)
 **Repositório:** https://github.com/0073dls0093-lgtm/squadfall
-**Último commit:** d939b86 — audio procedural no GameScene
+**Último commit:** 02b5b63 — vertical slice real da fase 1-2
 
 **Critério oficial de produto:** `docs/DEFINICAO-JOGO-REAL.md` define o que conta como jogo real, vertical slice, fase implementada, placeholder e integração Solana.
-
-**Cronograma oficial:** `docs/CRONOGRAMA.md` define a primeira versão com 10 fases completas e a expansão posterior das fases 11–30.
 
 ---
 
@@ -28,19 +26,27 @@
 | Deploy na Mainnet | ✅ | ❌ | ❌ |
 | Auditoria de segurança | ✅ | ❌ | ❌ |
 
-### Front-end (Next.js + Phaser)
+### Front-end (Next.js + Phaser) — Vertical Slice 1-2
 
 | Item | Planejado (GDD) | Implementado (codigo) | Testado |
 |------|:---:|:---:|:---:|
 | Layout + WalletProvider (Phantom) | ✅ | ✅ | ✅ Build Next.js validado |
-| HUD (saldo, vidas, fase, mundo) | ✅ | ✅ | ⚠️ Não executado |
+| HUD (saldo, vidas, fase, mundo, objetivo) | ✅ | ✅ | ⚠️ Não executado |
 | GameScene (movimento WASD + clique) | ✅ | ✅ | ✅ Build Next.js validado |
 | GameScene (tiro, inimigos, extracao) | ✅ | ✅ | ✅ Build Next.js validado |
-| Tela de vitoria com estrelas | ✅ | ✅ | ⚠️ Não executado |
+| Tela de vitoria com estrelas, tempo, kills, vivos | ✅ | ✅ | ⚠️ Não executado |
+| Tela de falha (esquadrão eliminado) | ✅ | ✅ | ⚠️ Não executado |
+| Objetivo obrigatório (kill_then_extract) | ✅ | ✅ | ⚠️ Não executado |
+| Alvos de treino (bullseye) distintos de inimigos | ✅ | ✅ (placeholder visual) | ⚠️ Não executado |
+| Inimigos por tipo (target/soldier/elite) | ✅ | ✅ (placeholder visual) | ⚠️ Não executado |
+| Barra de vida nos soldados | ✅ | ✅ | ⚠️ Não executado |
+| Barra de vida nos inimigos | ✅ | ✅ | ⚠️ Não executado |
+| Morte de soldado com lápide e sangue | ✅ | ✅ | ⚠️ Não executado |
+| damageSoldier() (pronto para fogo inimigo) | ✅ | ✅ | ❌ (sem fogo inimigo ainda) |
+| Áudio (shoot, hit, explosion, victory, soldierHit, soldierDeath) | ✅ | ✅ (Web Audio API procedural) | ⚠️ Não executado |
+| 30 fases no objeto PHASES | ✅ | ✅ (30 configs, 5 mundos) | ⚠️ Não executado |
 | Integracao on-chain de recompensas | ✅ | ❌ (mock em Zustand) | ❌ |
-| 30 fases no objeto PHASES | ✅ | ✅ (30 fases, 5 mundos) | ⚠️ Não executado |
-| Áudio (shoot, hit, explosion, victory) | ✅ | ✅ (Web Audio API procedural) | ⚠️ Não executado |
-| Sprites / texturas (ainda retângulos) | ✅ | ❌ (retângulos coloridos) | ❌ |
+| Sprites / texturas (ainda placeholders) | ✅ | ❌ (retângulos e círculos) | ❌ |
 | Controles mobile/touch | ✅ | ❌ | ❌ |
 | NFT marketplace | ✅ | ❌ | ❌ |
 | Leaderboard on-chain | ✅ | ❌ | ❌ |
@@ -66,35 +72,20 @@ squad-fall/
 ├── programs/squad-fall/src/lib.rs   ← 580 linhas Rust (token, rewards, staking, anti-farming)
 ├── tests/squad-fall.ts              ← 16 cenarios de teste (NUNCA executados)
 ├── scripts/deploy.ts                ← Script de deploy Devnet
-├── Anchor.toml
-├── Cargo.toml
-├── package.json
-└── install-windows.ps1
+├── Anchor.toml · Cargo.toml · package.json · install-windows.ps1
 
 squad-fall-frontend/
 ├── src/
-│   ├── app/
-│   │   ├── layout.tsx              ← Layout + WalletProvider + HUD
-│   │   ├── page.tsx                ← Menu / jogo / vitoria
-│   │   └── globals.css
-│   ├── components/
-│   │   ├── WalletProvider.tsx      ← Phantom + Solana wallet adapter
-│   │   └── HUD.tsx                  ← Overlay (saldo, vidas, fase)
-│   ├── game/
-│   │   └── GameScene.ts            ← Phaser (30 fases, movimento, tiro, inimigos, extracao, vitoria, AUDIO PROCEDURAL)
-│   └── store/
-│       └── useGameStore.ts         ← Zustand (estado global)
-├── package.json
-├── tsconfig.json
-├── next.config.js
-├── README.md
-└── HANDOFF.md
+│   ├── app/ (layout.tsx, page.tsx, globals.css)
+│   ├── components/ (WalletProvider.tsx, HUD.tsx)
+│   ├── game/GameScene.ts            ← 652 linhas (vertical slice 1-2 + 30 configs)
+│   └── store/useGameStore.ts
+├── package.json · tsconfig.json · next.config.js
+├── README.md · HANDOFF.md
 
 docs/
-├── CONTEXTO.md          ← Este arquivo
-├── GDD.md               ← Game Design Document completo
-├── GUIA-GENERICO.md     ← Regras de continuidade entre IAs
-└── TRANSICAO-IMEDIATA.md ← Instrucoes de checkpoint
+├── CONTEXTO.md · GDD.md · GUIA-GENERICO.md · TRANSICAO-IMEDIATA.md
+└── DEFINICAO-JOGO-REAL.md           ← Critérios de aceite
 ```
 
 ### O que NAO existe
@@ -102,33 +93,42 @@ docs/
 - Token $SQUAD nao esta na blockchain (codigo pronto, nunca deployado)
 - Testes nunca foram executados (precisa de Anchor CLI local)
 - Recompensas on-chain nao integradas ao cliente (saldo mockado em Zustand)
-- Sem sprites/texturas (tudo retângulo colorido)
+- Sprites/texturas: soldados e inimigos ainda são retângulos/círculos (placeholder)
+- Sem fogo inimigo (damageSoldier existe mas não é chamado por IA inimiga)
 - Sem servidor de validacao
 - Sem mobile/touch
 - Sem auditoria
 
-### Verificação técnica recente
+### Estado da vertical slice 1-2 (segundo DEFINICAO-JOGO-REAL.md)
 
-- O build inicial falhou por import incompatível do Phaser (`default export`) e conflito JSX dos providers Solana.
-- Correções aplicadas: import namespace do Phaser, carregamento dinâmico do Phaser no navegador para evitar `window` no SSR e compatibilidade de tipos nos providers.
-- `npm run build` aprovado em 03/09/2026; páginas `/` e `/_not-found` foram prerenderizadas.
-- **30 fases** implementadas no objeto `PHASES` do GameScene (commit 08e4552). Nomes, timeTarget, enemyCount e extração por fase conforme GDD. Inimigos posicionados via LCG determinístico.
-- **Áudio procedural** adicionado (commit d939b86): classe AudioFX usando Web Audio API — shoot, hit, explosion e victory. Sem assets binários.
-- `docs/GUIA-GENERICO.md`, `docs/TRANSICAO-IMEDIATA.md` e `squad-fall-frontend/HANDOFF.md` determinam que a IA principal continue sem delegar ao usuário, trabalhe por partes e faça `git push` imediatamente após cada tarefa concluída.
-- Documento `docs/DEFINICAO-JOGO-REAL.md` criado com critérios de aceite: build não equivale a runtime, configuração não equivale a fase completa, e a vertical slice 1-2 deve ser validada no navegador antes da expansão superficial.
-- Documento `docs/CRONOGRAMA.md` criado: a versão 1.0 terá 10 fases completas; as fases 11–30 serão atualizações posteriores.
+O GameScene agora implementa o ciclo real de jogo da fase 1-2:
+1. ✅ Entrar na missão (page.tsx → startGame → GameScene init)
+2. ✅ Visualizar esquadrão (4 soldados com nome, capacete, arma) e alvos (bullseye)
+3. ✅ Movimentar esquadrão (WASD + clique)
+4. ✅ Mirar e disparar rifle (clique direito → bullet + muzzle flash + audio.shoot)
+5. ✅ Acertar alvos e produzir dano (hitEnemy → hp-- → flash branco + audio.hit)
+6. ✅ Eliminar os oito alvos (audio.explosion + partículas + ring effect)
+7. ✅ Receber feedback visual e sonoro
+8. ✅ Alcançar extração (após objetivo completo → extractionActive → phaseComplete)
+9. ✅ Receber estrelas, tempo, kills e sobreviventes (tela de vitória)
+10. ✅ Voltar ao menu e identificar próxima fase (M → menu, ENTER/N → nextPhase)
+
+**Placeholder ainda ativo:** soldados, alvos e inimigos são retângulos/círculos coloridos (não sprites).
+
+**Runtime não validado:** o jogo não foi executado no navegador nesta sessão. O build Next.js foi validado anteriormente, mas a execução com a nova lógica de objetivo/extração/morte não foi testada em runtime.
 
 ---
 
 ## 3. Proxima Tarefa Clara
 
-1. **Completar a vertical slice real da fase 1-2** — ver `docs/DEFINICAO-JOGO-REAL.md` e `docs/CRONOGRAMA.md`
-2. **Implementar e testar as mecânicas específicas das fases 1-1 e 1-3**
-3. **Implementar fases 1-4 a 1-6**, incluindo minas, detector, reféns, chefe e veículo
-4. **Implementar e testar as fases 2-1 a 2-4** para fechar as 10 fases da versão 1.0
-5. **Adicionar sprites/texturas, mobile/touch e refinamentos de áudio/FX**
-6. **Instalar ferramentas locais e executar `anchor test`** em `squad-fall/`
-7. **Publicar na Devnet e integrar recompensas/compras on-chain** somente após servidor de validação e revisão de segurança
+1. **Validar runtime da vertical slice 1-2 no navegador** — executar o jogo e confirmar que o ciclo completo funciona sem erros no console
+2. **Adicionar fogo inimigo** — inimigos soldado/elite atiram no esquadrão, chamando damageSoldier() — necessário para a tela de falha ser acionável
+3. **Substituir placeholders por sprites** — soldados, alvos, inimigos, lápide
+4. **Implementar mecânicas específicas das fases 1-3 a 1-6** (floresta com cobertura, minas, resgate de reféns, chefão)
+5. **Instalar ferramentas locais** e fazer `anchor test` + `anchor deploy --provider.cluster devnet`
+6. **Integrar recompensa on-chain** no GameScene
+7. **Mobile/touch**
+8. **Auditoria de seguranca** antes do Mainnet
 
 ---
 
@@ -145,12 +145,15 @@ docs/
 
 ## 5. Decisoes Tomadas
 
-- **Solana sobre BSC**: Velocidade (~0.4s), custo (~$0.00001), Phantom UX, ecossistema gaming (MagicBlock, Sonic SVM)
-- **Rust + Anchor**: Framework nativo Solana, curva mais ingreme mas melhor tooling para SPL tokens
+- **Solana sobre BSC**: Velocidade (~0.4s), custo (~$0.00001), Phantom UX
+- **Rust + Anchor**: Framework nativo Solana
 - **Phaser.js**: Engine 2D maduro, integra com React via refs
-- **Zustand**: Estado leve, sincroniza Phaser + React sem overhead de Redux
-- **Mock rewards**: Jogo atualiza saldo local em Zustand; mint real exige contrato deployado + servidor de assinatura
-- **Áudio procedural**: Web Audio API gera sons em runtime (sem assets binários) — shoot, hit, explosion, victory
+- **Zustand**: Estado leve, sincroniza Phaser + React
+- **Mock rewards**: Saldo local em Zustand; mint real exige contrato deployado
+- **Áudio procedural**: Web Audio API gera sons em runtime (sem assets binários)
+- **Objetivo kill_then_extract**: Fase 1-2 requer matar todos os alvos ANTES de extrair — não basta chegar à extração
+- **Alvos de treino como bullseye**: Visual distinto de inimigos reais, homenagem ao Cannon Fodder
+- **Lápide com nome**: Soldado morto vira cruz + nome no chão, permanece pelo resto da fase
 
 ---
 
@@ -158,8 +161,8 @@ docs/
 
 | Ideia | Beneficio | Custo | Risco | Status |
 |-------|-----------|-------|------|--------|
-| Modo cooperativo online | Retencao, social | Alto (servidor de jogo) | Medio | Backlog |
+| Modo cooperativo online | Retencao, social | Alto | Medio | Backlog |
 | Torneios PvP sazonais | Competitividade, queima | Medio | Baixo | Backlog |
 | Solana Mobile (Saga) | Touch UI nativa | Medio | Baixo | Backlog |
-| DAO de governanca | Comunidade decide balanceamento | Baixo | Medio | Backlog |
-| Skin NFT marketplace | Receita, utilidade do token | Medio | Baixo | Backlog |
+| DAO de governanca | Comunidade decide | Baixo | Medio | Backlog |
+| Skin NFT marketplace | Receita, utilidade | Medio | Baixo | Backlog |
