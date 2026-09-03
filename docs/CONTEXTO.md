@@ -172,3 +172,10 @@
 - Após a validação real da fase 1-2, iniciar a próxima tarefa clara: resgate de reféns funcional na fase 1-5. Não iniciar integração on-chain antes do deploy/teste seguro do contrato na Devnet.
 
 **Próxima tarefa clara:** repetir a validação visual/interativa da fase 1-2 em navegador com Phantom conectado; se aprovada, implementar e testar o comportamento completo de reféns da fase 1-5.
+
+
+## 8. Nova tentativa de validação (2026-09-03 10:29)
+
+O navegador conectado voltou a acessar o GitHub e confirmou o commit `b3024c0` na branch `main`, porém a navegação para `http://localhost:3000` expirou. Portanto, a execução interativa da missão Phaser continua não validada; não há base factual para marcar a vertical slice 1-2 como concluída nem para iniciar a implementação de novas mecânicas como se a validação tivesse passado.
+
+**Próxima tarefa clara:** disponibilizar o frontend em um navegador que consiga acessar o servidor local (ou usar uma sessão de Cloud Computer), conectar Phantom e executar o ciclo completo da fase 1-2. Depois da aprovação visual/interativa, iniciar o teste funcional de reféns da fase 1-5.
