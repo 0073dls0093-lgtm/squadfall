@@ -1,7 +1,8 @@
 # CONTEXTO — Squad Fall
 
-**Ultima atualização:** 2026-09-03 (commit 08e4552)
+**Ultima atualização:** 2026-09-03 (pós-áudio)
 **Repositório:** https://github.com/0073dls0093-lgtm/squadfall
+**Último commit:** d939b86 — audio procedural no GameScene
 
 ---
 
@@ -31,10 +32,11 @@
 | HUD (saldo, vidas, fase, mundo) | ✅ | ✅ | ⚠️ Não executado |
 | GameScene (movimento WASD + clique) | ✅ | ✅ | ✅ Build Next.js validado |
 | GameScene (tiro, inimigos, extracao) | ✅ | ✅ | ✅ Build Next.js validado |
-| Tela de vitoria com estrelas + kills | ✅ | ✅ | ⚠️ Não executado |
-| 30 fases no objeto PHASES | ✅ | ✅ (30/30) | ⚠️ Não executado |
+| Tela de vitoria com estrelas | ✅ | ✅ | ⚠️ Não executado |
 | Integracao on-chain de recompensas | ✅ | ❌ (mock em Zustand) | ❌ |
-| Sprites / audio / FX | ✅ | ❌ (retângulos coloridos) | ❌ |
+| 30 fases no objeto PHASES | ✅ | ✅ (30 fases, 5 mundos) | ⚠️ Não executado |
+| Áudio (shoot, hit, explosion, victory) | ✅ | ✅ (Web Audio API procedural) | ⚠️ Não executado |
+| Sprites / texturas (ainda retângulos) | ✅ | ❌ (retângulos coloridos) | ❌ |
 | Controles mobile/touch | ✅ | ❌ | ❌ |
 | NFT marketplace | ✅ | ❌ | ❌ |
 | Leaderboard on-chain | ✅ | ❌ | ❌ |
@@ -75,7 +77,7 @@ squad-fall-frontend/
 │   │   ├── WalletProvider.tsx      ← Phantom + Solana wallet adapter
 │   │   └── HUD.tsx                  ← Overlay (saldo, vidas, fase)
 │   ├── game/
-│   │   └── GameScene.ts            ← Phaser — 30 fases (5 mundos × 6), movimento, tiro, inimigos, extracao, vitoria
+│   │   └── GameScene.ts            ← Phaser (30 fases, movimento, tiro, inimigos, extracao, vitoria, AUDIO PROCEDURAL)
 │   └── store/
 │       └── useGameStore.ts         ← Zustand (estado global)
 ├── package.json
@@ -83,6 +85,12 @@ squad-fall-frontend/
 ├── next.config.js
 ├── README.md
 └── HANDOFF.md
+
+docs/
+├── CONTEXTO.md          ← Este arquivo
+├── GDD.md               ← Game Design Document completo
+├── GUIA-GENERICO.md     ← Regras de continuidade entre IAs
+└── TRANSICAO-IMEDIATA.md ← Instrucoes de checkpoint
 ```
 
 ### O que NAO existe
@@ -90,7 +98,7 @@ squad-fall-frontend/
 - Token $SQUAD nao esta na blockchain (codigo pronto, nunca deployado)
 - Testes nunca foram executados (precisa de Anchor CLI local)
 - Recompensas on-chain nao integradas ao cliente (saldo mockado em Zustand)
-- Sem sprites, audio, FX (tudo retângulo colorido)
+- Sem sprites/texturas (tudo retângulo colorido)
 - Sem servidor de validacao
 - Sem mobile/touch
 - Sem auditoria
@@ -100,8 +108,8 @@ squad-fall-frontend/
 - O build inicial falhou por import incompatível do Phaser (`default export`) e conflito JSX dos providers Solana.
 - Correções aplicadas: import namespace do Phaser, carregamento dinâmico do Phaser no navegador para evitar `window` no SSR e compatibilidade de tipos nos providers.
 - `npm run build` aprovado em 03/09/2026; páginas `/` e `/_not-found` foram prerenderizadas.
-- `docs/GUIA-GENERICO.md`, `docs/TRANSICAO-IMEDIATA.md` e `squad-fall-frontend/HANDOFF.md` agora determinam que a IA principal continue sem delegar ao usuário, trabalhe por partes e faça `git push` imediatamente após cada tarefa concluída.
-- **08/09 commit `08e4552`**: objeto PHASES expandido de 3 para 30 fases (5 mundos × 6). Nomes, timeTarget, enemyCount, extraction por fase conforme GDD. Inimigos via LCG determinístico (mesmo seed = mesmo layout). Padrões de parede por mundo (cor + arranjo) para variedade visual. HUD mostra nome do mundo + staking para Mundos 3+. Tela de vitória com kills e jogo-completo na fase 30.
+- **30 fases** implementadas no objeto `PHASES` do GameScene (commit 08e4552). Nomes, timeTarget, enemyCount e extração por fase conforme GDD. Inimigos posicionados via LCG determinístico.
+- **Áudio procedural** adicionado (commit d939b86): classe AudioFX usando Web Audio API — shoot (square osc), hit (sawtooth osc), explosion (noise buffer + lowpass), victory (arpejo C-E-G-C). Sem assets binários.
 
 ---
 
@@ -111,7 +119,7 @@ squad-fall-frontend/
 2. **`anchor test`** em `squad-fall/` para validar os 16 cenarios
 3. **`anchor deploy --provider.cluster devnet`** para subir o contrato e criar o token $SQUAD de verdade
 4. **Integrar recompensa on-chain no GameScene**: apos `phaseComplete()`, enviar payload ao servidor de validacao, receber prova assinada, chamar `program.methods.completePhase(...)` via `@coral-xyz/anchor` no front-end
-5. **Adicionar sprites, audio, FX** (GameScene ainda usa retângulos)
+5. **Adicionar sprites/texturas** ao GameScene para substituir retângulos coloridos
 6. **Mobile/touch**
 7. **Auditoria de seguranca** antes do Mainnet
 
@@ -135,7 +143,7 @@ squad-fall-frontend/
 - **Phaser.js**: Engine 2D maduro, integra com React via refs
 - **Zustand**: Estado leve, sincroniza Phaser + React sem overhead de Redux
 - **Mock rewards**: Jogo atualiza saldo local em Zustand; mint real exige contrato deployado + servidor de assinatura
-- **LCG deterministico para inimigos**: Mesmo seed gera mesmo layout — reproducibilidade para teste/audit e dificuldade previsivel
+- **Áudio procedural**: Web Audio API gera sons em runtime (sem assets binários) — shoot, hit, explosion, victory
 
 ---
 
