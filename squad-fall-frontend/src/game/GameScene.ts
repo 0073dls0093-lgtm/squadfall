@@ -404,7 +404,7 @@ export class GameScene extends Phaser.Scene {
       const maxHp = soldier.getData("maxHealth") as number;
       const ratio = Math.max(0, hp / maxHp);
       bar.setScale(ratio, 1);
-      bar.setFillColor(ratio > 0.5 ? 0x00ff00 : ratio > 0.25 ? 0xffaa00 : 0xff0000);
+      bar.setFillStyle(ratio > 0.5 ? 0x00ff00 : ratio > 0.25 ? 0xffaa00 : 0xff0000);
     }
 
     for (let i = 0; i < this.enemyHealthBars.length; i++) {
@@ -619,9 +619,9 @@ export class GameScene extends Phaser.Scene {
     } else {
       e.setData("health", hp);
       const body = e.getAt(0) as Phaser.GameObjects.Shape;
-      if (body && body.setTint) {
-        body.setTint(0xffffff);
-        this.time.delayedCall(80, () => { if (e.active && body.active) body.clearTint(); });
+      if (body) {
+        body.setAlpha(0.45);
+        this.time.delayedCall(80, () => { if (e.active && body.active) body.setAlpha(1); });
       }
       audio.hit();
     }
@@ -659,9 +659,9 @@ export class GameScene extends Phaser.Scene {
       const px = s.x, py = s.y;
       const name = s.getData("name") as string;
       audio.soldierDeath();
-      s.getAt(0).setVisible(false);
-      s.getAt(1).setVisible(false);
-      s.getAt(2).setVisible(false);
+      for (let i = 0; i < 3; i++) {
+        (s.getAt(i) as Phaser.GameObjects.GameObject & { setVisible: (visible: boolean) => void }).setVisible(false);
+      }
       const stone = this.add.rectangle(px, py, 20, 24, 0x666666);
       stone.setStrokeStyle(2, 0x333333);
       const cross = this.add.text(px, py, "+", { fontSize:"16px", color:"#fff", fontFamily:"monospace", fontStyle:"bold" }).setOrigin(0.5);
@@ -672,9 +672,9 @@ export class GameScene extends Phaser.Scene {
       }
     } else {
       audio.soldierHit();
-      if (body && body.setTint) {
-        body.setTint(0xff6666);
-        this.time.delayedCall(120, () => { if (s.active && body.active) body.clearTint(); });
+      if (body) {
+        body.setAlpha(0.45);
+        this.time.delayedCall(120, () => { if (s.active && body.active) body.setAlpha(1); });
       }
     }
   }

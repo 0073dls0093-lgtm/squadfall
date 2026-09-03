@@ -146,3 +146,29 @@
 | Solana Mobile (Saga) | Touch UI nativa | Medio | Baixo | Backlog |
 | DAO de governanca | Comunidade decide balanceamento | Baixo | Medio | Backlog |
 | Skin NFT marketplace | Receita, utilidade do token | Medio | Baixo | Backlog |
+
+---
+
+## 7. Checkpoint de validação de runtime (2026-09-03)
+
+### Implementado
+
+- Corrigidos três erros de tipagem Phaser em `GameScene.ts`: `setFillColor` foi substituído por `setFillStyle`; o flash de dano usa `setAlpha`; e os componentes da lápide são ocultados com cast explícito para o contrato de visibilidade.
+
+### Testado
+
+- `npm install --no-audit --no-fund` executado com sucesso.
+- `npm run build` executado com sucesso após as correções: compilação, lint, verificação de tipos, geração de páginas e otimização concluídas.
+- A página inicial foi executada em navegador headless local com HTTP 200 e sem erros de console ou `pageerror`.
+
+### Placeholder/mockado
+
+- A validação da missão Phaser em runtime ainda não foi concluída: o navegador conectado não estabeleceu conexão (`Receiving end does not exist`) e o teste headless com Phantom mockado não conseguiu autenticar a carteira para chegar ao botão de início.
+- Soldados, inimigos, alvos, lápides e cenário continuam com formas geométricas placeholder; áudio permanece procedural. Recompensas e saldo continuam mockados em Zustand.
+
+### Planejado/bloqueado
+
+- Validar a fase 1-2 no navegador com uma carteira Phantom/devnet disponível, incluindo movimento, mira, disparo, colisão, dano, morte, efeitos, áudio, eliminação dos oito alvos, extração e tela de vitória.
+- Após a validação real da fase 1-2, iniciar a próxima tarefa clara: resgate de reféns funcional na fase 1-5. Não iniciar integração on-chain antes do deploy/teste seguro do contrato na Devnet.
+
+**Próxima tarefa clara:** repetir a validação visual/interativa da fase 1-2 em navegador com Phantom conectado; se aprovada, implementar e testar o comportamento completo de reféns da fase 1-5.
