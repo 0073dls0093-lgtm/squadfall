@@ -1,4 +1,4 @@
-// GameScene.ts — Phaser top-down tactical shooter — Vertical slice 1-4 + mines + cover + 30 phase configs
+// GameScene.ts — Phaser top-down tactical shooter — Vertical slice 1-5 + hostages + mines + cover + 30 phase configs
 import Phaser from "phaser";
 import { useGameStore } from "@/store/useGameStore";
 
@@ -109,6 +109,7 @@ interface PhaseData {
   objective: ObjectiveType;
   enemyType: "target" | "soldier" | "elite";
   mines?: { x: number; y: number }[];
+  hostages?: { x: number; y: number }[];
 }
 
 function genEnemies(count: number, seed: number): { x: number; y: number }[] {
@@ -129,7 +130,7 @@ const PHASES: Record<number, PhaseData> = {
   2: { name: "Tiro ao Alvo", world: 1, timeTarget: 45, enemyCount: 8, extraction: {x:28,y:17}, enemies: genEnemies(8, 11), objective: "kill_then_extract", enemyType: "target" },
   3: { name: "Floresta Silenciosa", world: 1, timeTarget: 60, enemyCount: 6, extraction: {x:27,y:18}, enemies: genEnemies(6, 23), objective: "kill_then_extract", enemyType: "soldier" },
   4: { name: "Nao Me Pise!", world: 1, timeTarget: 75, enemyCount: 5, extraction: {x:26,y:16}, enemies: genEnemies(5, 37), objective: "kill_then_extract", enemyType: "soldier", mines: [{x:8,y:8},{x:14,y:5},{x:18,y:12},{x:10,y:14},{x:20,y:6},{x:6,y:12},{x:22,y:10}] },
-  5: { name: "Resgate na Selva", world: 1, timeTarget: 90, enemyCount: 8, extraction: {x:28,y:18}, enemies: genEnemies(8, 41), objective: "kill_then_extract", enemyType: "soldier" },
+  5: { name: "Resgate na Selva", world: 1, timeTarget: 90, enemyCount: 8, extraction: {x:28,y:18}, enemies: genEnemies(8, 41), objective: "kill_then_extract", enemyType: "soldier", hostages: [{x:14,y:6},{x:20,y:10},{x:8,y:14}] },
   6: { name: "General Gorila", world: 1, timeTarget: 120, enemyCount: 12, extraction: {x:27,y:17}, enemies: genEnemies(12, 53), objective: "kill_then_extract", enemyType: "soldier" },
   7: { name: "Areias Ardentes", world: 2, timeTarget: 90, enemyCount: 10, extraction: {x:26,y:18}, enemies: genEnemies(10, 67), objective: "kill_then_extract", enemyType: "soldier" },
   8: { name: "Comboio Blindado", world: 2, timeTarget: 100, enemyCount: 12, extraction: {x:28,y:17}, enemies: genEnemies(12, 71), objective: "kill_then_extract", enemyType: "soldier" },
@@ -181,6 +182,9 @@ export class GameScene extends Phaser.Scene {
   private objectiveText!: Phaser.GameObjects.Text;
   private extractionActive = false;
   private mineObjects: Phaser.GameObjects.Container[] = [];
+  private hostageObjects: Phaser.GameObjects.Container[] = [];
+  private hostagesRescued = 0;
+  private hostagesTotal = 0;
 
   constructor() { super({ key: "GameScene" }); }
 
@@ -192,6 +196,9 @@ export class GameScene extends Phaser.Scene {
     this.kills = 0; this.enemiesKilled = 0; this.gameOver = false;
     this.objectiveComplete = false; this.extractionActive = false;
     this.mineObjects = [];
+    this.hostageObjects = [];
+    this.hostagesRescued = 0;
+    this.hostagesTotal = 0;
   }
 
   create() {
@@ -252,7 +259,6 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Mines — visible landmines (small mounds with blinking red light)
     if (this.phaseData.mines) {
       for (const m of this.phaseData.mines) {
         const mx = m.x * TILE + TILE/2, my = m.y * TILE + TILE/2;
@@ -265,6 +271,21 @@ export class GameScene extends Phaser.Scene {
         mine.setData("tileX", m.x);
         mine.setData("tileY", m.y);
         this.mineObjects.push(mine);
+      }
+    }
+
+    if (this.phaseData.hostages) {
+      this.hostagesTotal = this.phaseData.hostages.length;
+      for (const h of this.phaseData.hostages) {
+        const hx = h.x * TILE + TILE/2, hy = h.y * TILE + TILE/2;
+        const body = this.add.rectangle(0, 0, TILE-16, TILE-16, 0x4488ff);
+        body.setStrokeStyle(2, 0x000000, 0.4);
+        const head = this.add.circle(0, -12, 7, 0x88bbff);
+        const tag = this.add.text(0, -26, "REFÉM", { fontSize:"8px", color:"#bbddff", fontFamily:"monospace", fontStyle:"bold" }).setOrigin(0.5);
+        const hostage = this.add.container(hx, hy, [body, head, tag]);
+        hostage.setData("rescued", false);
+        hostage.setData("followIndex", -1);
+        this.hostageObjects.push(hostage);
       }
     }
 
@@ -383,7 +404,7 @@ export class GameScene extends Phaser.Scene {
       const maxHp = soldier.getData("maxHealth") as number;
       const ratio = Math.max(0, hp / maxHp);
       bar.setScale(ratio, 1);
-      bar.setFillStyle(ratio > 0.5 ? 0x00ff00 : ratio > 0.25 ? 0xffaa00 : 0xff0000);
+      bar.setFillColor(ratio > 0.5 ? 0x00ff00 : ratio > 0.25 ? 0xffaa00 : 0xff0000);
     }
 
     for (let i = 0; i < this.enemyHealthBars.length; i++) {
@@ -413,7 +434,7 @@ export class GameScene extends Phaser.Scene {
       else this.moveSquad(this.moveTarget.x, this.moveTarget.y);
     }
 
-    // Enemy fire — enemies of type soldier/elite shoot at nearest alive soldier
+    // Enemy fire
     for (const e of this.enemies) {
       if (!e.active) continue;
       const eType = e.getData("type") as string;
@@ -449,7 +470,43 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Mine detection — soldier steps on armed mine → takes heavy damage
+    // Hostage rescue and follow logic
+    for (const hostage of this.hostageObjects) {
+      if (!hostage.active) continue;
+      const rescued = hostage.getData("rescued") as boolean;
+      if (!rescued) {
+        const hx = hostage.x, hy = hostage.y;
+        for (const s of this.squad) {
+          if (!s.active || !s.getData("alive")) continue;
+          if (Phaser.Math.Distance.Between(s.x, s.y, hx, hy) < TILE * 0.8) {
+            hostage.setData("rescued", true);
+            this.hostagesRescued++;
+            audio.victory();
+            const body = hostage.getAt(0) as Phaser.GameObjects.Shape;
+            if (body && body.setFillStyle) body.setFillStyle(0x33cc33, 1);
+            const tag = hostage.getAt(2) as Phaser.GameObjects.Text;
+            if (tag) tag.setText("SALVO");
+            for (let i = 0; i < 6; i++) {
+              const p = this.add.circle(hx + (Math.random()-0.5)*20, hy + (Math.random()-0.5)*20, 2+Math.random()*3, 0x33ff33);
+              this.tweens.add({ targets: p, alpha: 0, scaleX: 3, scaleY: 3, duration: 500, onComplete: () => p.destroy() });
+            }
+            break;
+          }
+        }
+      } else {
+        const leader = this.squad.find(s => s.active && s.getData("alive"));
+        if (leader) {
+          const dist = Phaser.Math.Distance.Between(hostage.x, hostage.y, leader.x, leader.y);
+          if (dist > TILE * 1.5) {
+            const a = Math.atan2(leader.y - hostage.y, leader.x - hostage.x);
+            hostage.x += Math.cos(a) * 1.8;
+            hostage.y += Math.sin(a) * 1.8;
+          }
+        }
+      }
+    }
+
+    // Mine detection
     for (const mine of this.mineObjects) {
       if (!mine.active || !mine.getData("armed")) continue;
       const mineX = mine.x, mineY = mine.y;
@@ -561,7 +618,7 @@ export class GameScene extends Phaser.Scene {
       }
     } else {
       e.setData("health", hp);
-      const body = e.getAt(0) as any;
+      const body = e.getAt(0) as Phaser.GameObjects.Shape;
       if (body && body.setTint) {
         body.setTint(0xffffff);
         this.time.delayedCall(80, () => { if (e.active && body.active) body.clearTint(); });
@@ -596,15 +653,15 @@ export class GameScene extends Phaser.Scene {
     if (!s.active || !s.getData("alive")) return;
     let hp = (s.getData("health") as number) - dmg;
     s.setData("health", hp);
-    const body = s.getAt(0) as any;
+    const body = s.getAt(0) as Phaser.GameObjects.Shape;
     if (hp <= 0) {
       s.setData("alive", false);
       const px = s.x, py = s.y;
       const name = s.getData("name") as string;
       audio.soldierDeath();
-      (s.getAt(0) as any).setVisible(false);
-      (s.getAt(1) as any).setVisible(false);
-      (s.getAt(2) as any).setVisible(false);
+      s.getAt(0).setVisible(false);
+      s.getAt(1).setVisible(false);
+      s.getAt(2).setVisible(false);
       const stone = this.add.rectangle(px, py, 20, 24, 0x666666);
       stone.setStrokeStyle(2, 0x333333);
       const cross = this.add.text(px, py, "+", { fontSize:"16px", color:"#fff", fontFamily:"monospace", fontStyle:"bold" }).setOrigin(0.5);
