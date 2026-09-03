@@ -1,4 +1,4 @@
-// GameScene.ts — Phaser top-down tactical shooter — Vertical slice 1-3 + cover/collision + 30 phase configs
+// GameScene.ts — Phaser top-down tactical shooter — Vertical slice 1-4 + mines + cover + 30 phase configs
 import Phaser from "phaser";
 import { useGameStore } from "@/store/useGameStore";
 
@@ -108,6 +108,7 @@ interface PhaseData {
   enemies: { x: number; y: number }[];
   objective: ObjectiveType;
   enemyType: "target" | "soldier" | "elite";
+  mines?: { x: number; y: number }[];
 }
 
 function genEnemies(count: number, seed: number): { x: number; y: number }[] {
@@ -127,7 +128,7 @@ const PHASES: Record<number, PhaseData> = {
   1: { name: "Acorda, Soldado!", world: 1, timeTarget: 30, enemyCount: 0, extraction: {x:26,y:7}, enemies: [], objective: "extract", enemyType: "target" },
   2: { name: "Tiro ao Alvo", world: 1, timeTarget: 45, enemyCount: 8, extraction: {x:28,y:17}, enemies: genEnemies(8, 11), objective: "kill_then_extract", enemyType: "target" },
   3: { name: "Floresta Silenciosa", world: 1, timeTarget: 60, enemyCount: 6, extraction: {x:27,y:18}, enemies: genEnemies(6, 23), objective: "kill_then_extract", enemyType: "soldier" },
-  4: { name: "Nao Me Pise!", world: 1, timeTarget: 75, enemyCount: 5, extraction: {x:26,y:16}, enemies: genEnemies(5, 37), objective: "kill_then_extract", enemyType: "soldier" },
+  4: { name: "Nao Me Pise!", world: 1, timeTarget: 75, enemyCount: 5, extraction: {x:26,y:16}, enemies: genEnemies(5, 37), objective: "kill_then_extract", enemyType: "soldier", mines: [{x:8,y:8},{x:14,y:5},{x:18,y:12},{x:10,y:14},{x:20,y:6},{x:6,y:12},{x:22,y:10}] },
   5: { name: "Resgate na Selva", world: 1, timeTarget: 90, enemyCount: 8, extraction: {x:28,y:18}, enemies: genEnemies(8, 41), objective: "kill_then_extract", enemyType: "soldier" },
   6: { name: "General Gorila", world: 1, timeTarget: 120, enemyCount: 12, extraction: {x:27,y:17}, enemies: genEnemies(12, 53), objective: "kill_then_extract", enemyType: "soldier" },
   7: { name: "Areias Ardentes", world: 2, timeTarget: 90, enemyCount: 10, extraction: {x:26,y:18}, enemies: genEnemies(10, 67), objective: "kill_then_extract", enemyType: "soldier" },
@@ -179,6 +180,7 @@ export class GameScene extends Phaser.Scene {
   private clockText!: Phaser.GameObjects.Text;
   private objectiveText!: Phaser.GameObjects.Text;
   private extractionActive = false;
+  private mineObjects: Phaser.GameObjects.Container[] = [];
 
   constructor() { super({ key: "GameScene" }); }
 
@@ -189,6 +191,7 @@ export class GameScene extends Phaser.Scene {
     this.moveTarget = null;
     this.kills = 0; this.enemiesKilled = 0; this.gameOver = false;
     this.objectiveComplete = false; this.extractionActive = false;
+    this.mineObjects = [];
   }
 
   create() {
@@ -246,6 +249,22 @@ export class GameScene extends Phaser.Scene {
         const eBar = this.add.rectangle(ex2, ey2 - 28, 24, 3, 0xff3333).setDepth(51);
         eBar.setData("enemyIndex", this.enemies.length - 1);
         this.enemyHealthBars.push(eBar);
+      }
+    }
+
+    // Mines — visible landmines (small mounds with blinking red light)
+    if (this.phaseData.mines) {
+      for (const m of this.phaseData.mines) {
+        const mx = m.x * TILE + TILE/2, my = m.y * TILE + TILE/2;
+        const mound = this.add.circle(0, 0, TILE/3, 0x6b4226);
+        mound.setStrokeStyle(2, 0x3a2010, 0.5);
+        const light = this.add.circle(0, -4, 4, 0xff0000, 0.9);
+        this.tweens.add({ targets: light, alpha: 0.2, duration: 400, yoyo: true, repeat: -1 });
+        const mine = this.add.container(mx, my, [mound, light]);
+        mine.setData("armed", true);
+        mine.setData("tileX", m.x);
+        mine.setData("tileY", m.y);
+        this.mineObjects.push(mine);
       }
     }
 
@@ -430,6 +449,26 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
+    // Mine detection — soldier steps on armed mine → takes heavy damage
+    for (const mine of this.mineObjects) {
+      if (!mine.active || !mine.getData("armed")) continue;
+      const mineX = mine.x, mineY = mine.y;
+      for (const s of this.squad) {
+        if (!s.active || !s.getData("alive")) continue;
+        if (Phaser.Math.Distance.Between(s.x, s.y, mineX, mineY) < TILE * 0.4) {
+          mine.setData("armed", false);
+          mine.setVisible(false);
+          audio.explosion();
+          for (let i = 0; i < 10; i++) {
+            const p = this.add.circle(mineX + (Math.random()-0.5)*30, mineY + (Math.random()-0.5)*30, 3+Math.random()*6, 0xff4400);
+            this.tweens.add({ targets: p, alpha: 0, scaleX: 3, scaleY: 3, duration: 500, onComplete: () => p.destroy() });
+          }
+          this.damageSoldier(s, 3);
+          break;
+        }
+      }
+    }
+
     const aliveSoldiers = this.squad.filter(s => s.active && s.getData("alive")).length;
     if (aliveSoldiers === 0 && !this.gameOver) {
       this.phaseFailed();
@@ -467,7 +506,6 @@ export class GameScene extends Phaser.Scene {
       const a = Math.atan2(ty + oy - s.y, tx + ox - s.x);
       const nx = s.x + Math.cos(a) * 2.2;
       const ny = s.y + Math.sin(a) * 2.2;
-      // Wall collision — block movement into walls (slide along axis if possible)
       const tx2 = Math.floor(nx / TILE), ty2 = Math.floor(ny / TILE);
       const cx = Math.floor(s.x / TILE), cy = Math.floor(s.y / TILE);
       if (this.isWall(tx2, ty2)) {
@@ -484,7 +522,6 @@ export class GameScene extends Phaser.Scene {
     const shooter = this.squad.find(s => s.active && s.getData("alive"));
     if (!shooter) return;
     const a = Math.atan2(wy - shooter.y, wx - shooter.x);
-    // Block shot if a wall is directly in front of the shooter (cover mechanic)
     const frontX = Math.floor((shooter.x + Math.cos(a) * 24) / TILE);
     const frontY = Math.floor((shooter.y + Math.sin(a) * 24) / TILE);
     if (this.isWall(frontX, frontY)) return;
@@ -535,7 +572,6 @@ export class GameScene extends Phaser.Scene {
 
   enemyShoot(fx: number, fy: number, tx: number, ty: number) {
     const a = Math.atan2(ty - fy, tx - fx);
-    // Block enemy shot if wall directly in front (cover protects player)
     const frontX = Math.floor((fx + Math.cos(a) * 24) / TILE);
     const frontY = Math.floor((fy + Math.sin(a) * 24) / TILE);
     if (this.isWall(frontX, frontY)) return;
