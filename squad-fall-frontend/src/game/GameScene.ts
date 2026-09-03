@@ -44,7 +44,6 @@ export class GameScene extends Phaser.Scene {
     const cam = this.cameras.main;
     const W = 30, H = 20;
 
-    // Terrain
     for (let y = 0; y < H; y++) {
       for (let x = 0; x < W; x++) {
         const isWall = (this.phaseId === 1 && (y === 3 || y === 6) && x >= 4 && x <= 9);
@@ -53,7 +52,6 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Extraction
     this.extractionPos = this.phaseData.extraction;
     const ex = this.extractionPos.x * TILE + TILE/2, ey = this.extractionPos.y * TILE + TILE/2;
     const ext = this.add.rectangle(ex, ey, TILE, TILE, C_EXTRACTION, 0.6);
@@ -61,12 +59,10 @@ export class GameScene extends Phaser.Scene {
     this.tweens.add({ targets: ext, alpha: 0.3, duration: 800, yoyo: true, repeat: -1 });
     this.add.text(ex, ey - 20, "EXTRAIR", { fontSize:"10px", color:"#ffdd00", fontFamily:"monospace", fontStyle:"bold" }).setOrigin(0.5);
 
-    // HUD
     this.add.text(cam.width/2, 20, this.phaseData.name, { fontSize:"16px", color:"#fff", fontFamily:"monospace", fontStyle:"bold" }).setOrigin(0.5).setDepth(50);
     this.clockText = this.add.text(cam.width-12, 20, "0s", { fontSize:"14px", color:"#aaa", fontFamily:"monospace" }).setOrigin(1,0).setDepth(50);
     this.killText = this.add.text(12, 20, `Inimigos: 0/${this.phaseData.enemyCount}`, { fontSize:"14px", color:"#f66", fontFamily:"monospace" }).setDepth(50);
 
-    // Squad (4 soldiers)
     for (let i = 0; i < 4; i++) {
       const sx = (2 + i % 2) * TILE + TILE/2, sy = (8 + Math.floor(i/2)) * TILE + TILE/2;
       const name = NAMES[Math.floor(Math.random() * NAMES.length)];
@@ -80,7 +76,6 @@ export class GameScene extends Phaser.Scene {
       this.squad.push(s);
     }
 
-    // Enemies
     for (const e of this.phaseData.enemies) {
       const ex2 = e.x * TILE + TILE/2, ey2 = e.y * TILE + TILE/2;
       const enemy = this.add.sprite(ex2, ey2, "__WHITE");
@@ -90,7 +85,6 @@ export class GameScene extends Phaser.Scene {
       this.enemies.push(enemy);
     }
 
-    // Input
     this.input.on("pointerdown", (p: Phaser.Input.Pointer) => {
       if (this.gameOver) return;
       if (p.leftButtonDown()) this.moveTarget = { x: p.worldX, y: p.worldY };
@@ -104,7 +98,6 @@ export class GameScene extends Phaser.Scene {
     };
     this.input.mouse!.disableContextMenu();
 
-    // Hint
     const hint = this.add.text(cam.width/2, cam.height-16, "WASD = Mover · Clique = Mover · Clique Direito = Atirar", { fontSize:"10px", color:"#666", fontFamily:"monospace" }).setOrigin(0.5).setDepth(50);
     this.tweens.add({ targets: hint, alpha: 0, delay: 6000, duration: 1000 });
   }

@@ -10,7 +10,6 @@ export function HUD() {
 
   return (
     <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-2 bg-black/70 backdrop-blur border-b border-green-900/50">
-      {/* Left: Game info */}
       <div className="flex items-center gap-4 text-xs sm:text-sm">
         {connected && (
           <>
@@ -37,8 +36,6 @@ export function HUD() {
           <span className="text-gray-400">Conecte a Phantom para jogar</span>
         )}
       </div>
-
-      {/* Right: Wallet button */}
       <div className="flex items-center gap-3">
         {connected && (
           <span className="text-xs text-gray-400 hidden sm:inline">
