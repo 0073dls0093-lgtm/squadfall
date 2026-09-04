@@ -17,12 +17,12 @@
 
 ### Verificação objetiva do código
 
-Confirmado por inspeção direta do GameScene.ts:
-- `patrol: true` → lógica de movimento circular no update() (linha 568)
-- `sandstorm: true` → overlay amarelo com alpha pulsante no create() (linha 337)
-- `convoy: { route, speed }` → jipe criado no create() (linha 345), movimento por interpolação no update() (linha 687)
-- `lowAmmo: true` → ammoCount decrementa no shoot() (linha 845), caixas de munição dropam ao matar inimigos (linha 928), coleta por proximidade no update() (linha 746)
-- `sniperTowers: [{x,y,hp}]` → torres criadas no create() (linha 355), atiram no soldado mais próximo no update() (linha 655), jogador destrói atirando (linha 869)
+Confirmado por inspeção direta do GameScene.ts (1079 linhas):
+- `patrol: true` → lógica de movimento circular no update()
+- `sandstorm: true` → overlay amarelo com alpha pulsante no create()
+- `convoy: { route, speed }` → jipe criado no create(), movimento por interpolação no update()
+- `lowAmmo: true` → ammoCount decrementa no shoot(), caixas de munição dropam ao matar inimigos, coleta por proximidade no update()
+- `sniperTowers: [{x,y,hp}]` → torres criadas no create(), atiram no soldado mais próximo no update(), jogador destrói atirando
 
 ### Mecânicas globais
 

@@ -1,6 +1,6 @@
 # CONTEXTO — Squad Fall
 
-**Última atualização:** 2026-09-04 (verificação objetiva das 10 fases)
+**Última atualização:** 2026-09-04 (GameScene.ts com 10 fases pushado)
 **Repositório:** https://github.com/0073dls0093-lgtm/squadfall
 
 ---
@@ -25,7 +25,7 @@ Web3 CONGELADO. Recompensas simuladas localmente (mock Zustand).
 |------|-------|---------|:---:|:---:|:---:|:---:|
 | 1-1 | Recruta | Extração simples | ✅ | ✅ | ✅ | ❌ |
 | 1-2 | Recruta | Tiro ao alvo (8 bullseye) | ✅ | ✅ | ✅ | ❌ |
-| 1-3 | Recruta | Cobertura de parede | ✅ | ✅ | ✅ | ❌ |
+| 1-3 | Recruta | Cobertura de paredes | ✅ | ✅ | ✅ | ❌ |
 | 1-4 | Recruta | Minas terrestres (7 minas) | ✅ | ✅ | ✅ | ❌ |
 | 1-5 | Recruta | Reféns (3, seguem esquadrão) | ✅ | ✅ | ✅ | ❌ |
 | 1-6 | Recruta | Boss General Gorila | ✅ | ✅ | ✅ | ❌ |
@@ -36,12 +36,12 @@ Web3 CONGELADO. Recompensas simuladas localmente (mock Zustand).
 
 ### Verificação objetiva das mecânicas 2-1 a 2-4
 
-Confirmado por inspeção direta do código (GameScene.ts):
-- **2-1 Patrulha**: `patrol: true` na config → inimigos recebem `baseX/baseY/patrolAngle/patrolRadius` no create() → movimento circular a cada frame no update() (linha 568)
-- **2-1 Tempestade**: `sandstorm: true` na config → overlay amarelo com alpha pulsante criado no create() (linha 337)
-- **2-2 Comboio**: `convoy: { route, speed }` na config → jipe criado no create() (linha 345) → jipe percorre rota interpolando entre pontos no update() (linha 687)
-- **2-3 Munição**: `lowAmmo: true` na config → ammoCount limita tiros no shoot() (linha 845) → caixas de munição dropam ao matar inimigos (linha 928) → coleta por proximidade no update() (linha 746)
-- **2-4 Snipers**: `sniperTowers: [{x,y,hp}]` na config → torres criadas com scope piscante no create() (linha 355) → atiram no soldado mais próximo, dano 2, cadência 3.5s no update() (linha 655) → jogador destrói atirando (linha 869)
+Confirmado por inspeção direta do código (GameScene.ts, 1079 linhas):
+- **2-1 Patrulha**: `patrol: true` na config → inimigos recebem `baseX/baseY/patrolAngle/patrolRadius` no create() → movimento circular a cada frame no update()
+- **2-1 Tempestade**: `sandstorm: true` na config → overlay amarelo com alpha pulsante criado no create()
+- **2-2 Comboio**: `convoy: { route, speed }` na config → jipe criado no create() → jipe percorre rota interpolando entre pontos no update()
+- **2-3 Munição**: `lowAmmo: true` na config → ammoCount limita tiros no shoot() → caixas de munição dropam ao matar inimigos → coleta por proximidade no update()
+- **2-4 Snipers**: `sniperTowers: [{x,y,hp}]` na config → torres criadas com scope piscante no create() → atiram no soldado mais próximo, dano 2, cadência 3.5s no update() → jogador destrói atirando
 
 ### Mecânicas globais implementadas
 
