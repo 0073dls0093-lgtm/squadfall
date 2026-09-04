@@ -1,133 +1,98 @@
 # CONTEXTO — Squad Fall
 
-**Última atualização:** 2026-09-04 (validação estática + bloqueio de navegador)
+**Última atualização:** 2026-09-04 (pós-fase 2-1)
 **Repositório:** https://github.com/0073dls0093-lgtm/squadfall
-
-**Cronograma oficial:** `docs/CRONOGRAMA.md` — primeira versão terá 10 fases completas (até 2-4). Fases 11–30 posteriores.
-**Critério oficial de produto:** `docs/DEFINICAO-JOGO-REAL.md` define o que conta como jogo real.
 
 ---
 
 ## 0. PRIORIDADE ATUAL — JOGO SEM BLOCKCHAIN
 
-A integração Solana/Web3 está **temporariamente congelada**. O contrato Anchor permanece **experimental** e `anchor test` **não foi executado** por falta do ambiente necessário.
+Web3 CONGELADO. Recompensas simuladas localmente (mock Zustand).
 
-**Não fazer:** deploy na Solana, corrigir o stake_vault, adicionar testes Web3, revisar o contrato.
-
-**Prioridade agora:**
-1. ~~Concluir a fase 1-6~~ ✅ Boss General Gorila pushed (commit 9cfe9e8)
-2. **Validar runtime no navegador** — BLOQUEADO: este ambiente não tem Node.js/npm nem navegador
-3. Criar as fases 2-1 até 2-4 (Mundo 2)
-4. Testar vitória, derrota, reinício e progressão
-5. Corrigir bugs de gameplay
-6. Melhorar os placeholders principais
-7. Preparar o build para hospedagem
-
-Recompensas são **simuladas localmente** (mock em Zustand).
+**Prioridade:**
+1. ~~Validar fases no navegador~~ ⛔ Bloqueado (sem Node.js/npm/navegador neste ambiente)
+2. ~~Concluir fase 1-6~~ ✅ Boss General Gorila pushed
+3. ~~Criar fase 2-1~~ ✅ Areias Ardentes (patrulha + tempestade de areia) implementada
+4. Criar fases 2-2 a 2-4
+5. Corrigir bugs de gameplay (após validação no navegador)
+6. Melhorar placeholders
+7. Preparar build para hospedagem
 
 ---
 
-## 1. Estado Factual do Projeto
+## 1. Estado Factual
 
-### Smart Contract (Anchor Program) — CONGELADO
+### Fases implementadas (código existe no GitHub)
 
-Tudo implementado no código mas não testado. Não iniciar.
+| Fase | Mundo | Mecânica | Implementada | Validada no navegador |
+|------|-------|---------|:---:|:---:|
+| 1-1 | Recruta | Extração simples | ✅ | ❌ |
+| 1-2 | Recruta | Tiro ao alvo (8 bullseye) | ✅ | ❌ |
+| 1-3 | Recruta | Cobertura de parede | ✅ | ❌ |
+| 1-4 | Recruta | Minas terrestres (7 minas) | ✅ | ❌ |
+| 1-5 | Recruta | Reféns (3, seguem esquadrão) | ✅ | ❌ |
+| 1-6 | Recruta | Boss General Gorila | ✅ | ❌ |
+| 2-1 | Cabo | Patrulha + tempestade de areia | ✅ | ❌ |
+| 2-2 | Cabo | Comboio blindado | ❌ | ❌ |
+| 2-3 | Cabo | Oásis (munição escassa) | ❌ | ❌ |
+| 2-4 | Cabo | Torres gêmeas (snipers) | ❌ | ❌ |
 
-### Front-end (Next.js + Phaser) — PRIORIDADE
+### Mecânicas globais implementadas
 
-| Item | Planejado | Implementado | Testado |
-|------|:---:|:---:|:---:|
-| Layout + WalletProvider | ✅ | ✅ | ✅ Build anterior |
-| HUD (saldo, vidas, fase, mundo, objetivo) | ✅ | ✅ | ⚠️ |
-| GameScene (movimento WASD + clique) | ✅ | ✅ | ✅ Build anterior |
-| GameScene (tiro, inimigos, extração) | ✅ | ✅ | ✅ Build anterior |
-| Tela de vitória com estrelas | ✅ | ✅ | ⚠️ |
-| Tela de falha | ✅ | ✅ | ⚠️ |
-| Objetivo kill_then_extract | ✅ | ✅ | ⚠️ |
-| Alvos de treino (bullseye) | ✅ | ✅ | ⚠️ |
-| Inimigos por tipo (target/soldier/elite) | ✅ | ✅ | ⚠️ |
-| Barra de vida soldados | ✅ | ✅ | ⚠️ |
-| Barra de vida inimigos | ✅ | ✅ | ⚠️ |
-| Morte de soldado com lápide | ✅ | ✅ | ⚠️ |
-| Fogo inimigo bidirecional | ✅ | ✅ | ❌ |
-| Colisão de parede (cobertura) | ✅ | ✅ | ❌ |
-| Minas terrestres (1-4) | ✅ | ✅ | ❌ |
-| Reféns que seguem o esquadrão (1-5) | ✅ | ✅ | ❌ |
-| Boss General Gorila (1-6) | ✅ | ✅ | ❌ |
-| Áudio procedural | ✅ | ✅ | ⚠️ |
-| 30 configs de fase | ✅ | ✅ | ⚠️ |
-| Fases 2-1 a 2-4 (Mundo 2) | ✅ | ⚠️ (configs, sem mecânicas) | ❌ |
-| Recompensas simuladas (mock Zustand) | ✅ | ✅ | ✅ |
-| Integração on-chain | ✅ | ❌ (CONGELADO) | ❌ |
-| Sprites / texturas | ✅ | ❌ (placeholders) | ❌ |
-| Mobile/touch | ✅ | ❌ | ❌ |
+- Movimento WASD + clique, tiro com clique direito
+- Fogo inimigo bidirecional (soldado/elite atiram no jogador)
+- Colisão de parede com slide
+- Morte de soldado com lápide + sangue + áudio
+- Tela de vitória (estrelas, tempo, kills, sobreviventes, reward mock)
+- Tela de falha (esquadrão eliminado)
+- Áudio procedural (shoot, hit, explosion, victory, soldierHit, soldierDeath)
+- Barra de vida em soldados e inimigos
+- Boss com HP bar e spawn de ondas
+- Patrulha de inimigos (movimento circular)
+- Tempestade de areia (overlay visual com alpha pulsante)
+- Recompensas simuladas localmente (mock em Zustand)
 
----
+### Web3 CONGELADO
 
-## 2. Validação de Runtime
-
-### BLOQUEIO REAL
-
-Este ambiente de código não possui:
-- Node.js / npm (não pode rodar `npm install`, `npm run build`, `npm run dev`)
-- Navegador headless (não pode executar Phaser em runtime)
-- Solana CLI / Anchor CLI (não pode rodar `anchor test`)
-
-**O que foi feito:**
-- Validação estática do código TypeScript: sem erros de sintaxe detectados na leitura
-- Build Next.js aprovado anteriormente (03/09/2026) em sessão que tinha npm
-
-**O que NÃO foi feito:**
-- `npm run build` com o GameScene atual (com boss, minas, reféns)
-- Validação interativa no navegador (iniciar, mover, atirar, dano, morte, objetivo, extração, vitória, derrota, reinício, progressão)
-
-**Próxima IA ou usuário deve:**
-1. Rodar `cd squad-fall-frontend && npm install && npm run build` em ambiente com Node.js
-2. Rodar `npm run dev` e abrir `http://localhost:3000` no navegador
-3. Conectar Phantom (ou usar modo dev sem carteira se configurado)
-4. Testar cada fase 1-1 a 1-6 manualmente
-5. Reportar bugs encontrados
+- Contrato Anchor experimental, anchor test nunca executado
+- stake_vault pode ter incompatibilidade PDA vs ATA
+- Não fazer deploy, não corrigir stake_vault, não adicionar testes Web3
 
 ---
 
-## 3. Mundo 1 — Completo no Código
+## 2. Próxima Tarefa Clara
 
-- **1-1**: Extração simples (objetivo: extract)
-- **1-2**: Tiro ao alvo (8 alvos bullseye, kill_then_extract)
-- **1-3**: Floresta (cobertura de parede, tiros bloqueados)
-- **1-4**: Minas terrestres (7 minas, 3 de dano ao pisar)
-- **1-5**: Reféns (3 reféns, seguem o esquadrão após resgate)
-- **1-6**: Boss General Gorila (veículo blindado 2x2, HP bar, spawna ondas, hitBoss)
-
----
-
-## 4. Próxima Tarefa Clara
-
-1. **Validar runtime no navegador** — BLOQUEADO neste ambiente
-2. **Criar fases 2-1 a 2-4** (Mundo 2) — pode prosseguir sem validação de navegador
-3. Corrigir bugs de gameplay (após validação)
-4. Melhorar placeholders
-5. Preparar build para hospedagem
+1. **Criar fase 2-2** (Comboio Blindado) — jipe automático que percorre rota, esquadrão defende
+2. **Criar fase 2-3** (Oásis Sangrento) — munição escassa, drops de inimigos
+3. **Criar fase 2-4** (Torres Gêmeas) — duas torres com snipers
+4. **Validar no navegador** (quando ambiente disponível)
+5. **Corrigir bugs** encontrados
+6. **Melhorar placeholders**
+7. **Preparar build para hospedagem**
 
 ---
 
-## 5. Decisões Tomadas
+## 3. Decisões Tomadas
 
-- Solana sobre BSC, Rust + Anchor, Phaser.js, Zustand
+- Solana, Rust + Anchor, Phaser.js, Zustand
 - Mock rewards: saldo local em Zustand
 - Áudio procedural: Web Audio API
-- Boss General Gorila: veículo blindado, spawna ondas, hitBoss()
-- Web3 CONGELADO: prioridade é jogo sem blockchain
-- Validação de navegador BLOQUEADA: ambiente sem Node.js/npm
+- kill_then_extract: matar todos antes de extrair
+- Alvos de treino como bullseye
+- Lápide com nome
+- Colisão de parede com slide
+- Minas visíveis com luz vermelha
+- Fogo inimigo bidirecional
+- Boss General Gorila: veículo blindado, spawna ondas
+- Patrulha: inimigos circulam posição base
+- Tempestade de areia: overlay amarelo com alpha pulsante
+- Cronograma de 10 fases (até 2-4)
+- Web3 CONGELADO
 
 ---
 
-## 6. Ideias Futuras (não implementadas)
+## 4. Economia (SIMULADA)
 
-| Ideia | Benefício | Custo | Risco | Status |
-|-------|-----------|-------|------|--------|
-| Modo cooperativo | Retenção | Alto | Médio | Backlog |
-| Torneios PvP | Competitividade | Médio | Baixo | Backlog |
-| Solana Mobile | Touch UI | Médio | Baixo | Backlog |
-| DAO de governança | Comunidade | Baixo | Médio | Backlog |
-| Skin NFT marketplace | Receita | Médio | Baixo | Backlog |
+- Supply: 500M $SQUAD — planejado, não deployado
+- Pool de recompensas: 40% (200M) — planejado, não deployado
+- Atualmente: saldo mockado em Zustand
