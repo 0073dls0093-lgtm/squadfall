@@ -7,32 +7,15 @@ declare_id!("SQLD111111111111111111111111111111111111111");
 // CONSTANTS
 // ============================================================
 
-/// Max token supply: 500 million SQUAD (9 decimals)
 pub const MAX_SUPPLY: u64 = 500_000_000 * 1_000_000_000;
-
-/// Reward pool: 40% of supply = 200 million
 pub const REWARD_POOL_TOTAL: u64 = 200_000_000 * 1_000_000_000;
-
-/// Total phases in the game
 pub const TOTAL_PHASES: u8 = 30;
-
-/// Cooldown between same-phase replays (seconds)
-pub const PHASE_COOLDOWN: i64 = 1800; // 30 minutes
-
-/// Daily phase completion limit per wallet
+pub const PHASE_COOLDOWN: i64 = 1800;
 pub const DAILY_LIMIT: u8 = 50;
-
-/// Staking required for World 3+
 pub const STAKE_WORLD_3: u64 = 100 * 1_000_000_000;
 pub const STAKE_WORLD_4: u64 = 250 * 1_000_000_000;
 pub const STAKE_WORLD_5: u64 = 500 * 1_000_000_000;
-
-/// Staking unlock period (seconds)
-pub const STAKE_UNLOCK_PERIOD: i64 = 7 * 24 * 60 * 60; // 7 days
-
-// ============================================================
-// PHASE REWARDS (base, 1-star)
-// ============================================================
+pub const STAKE_UNLOCK_PERIOD: i64 = 7 * 24 * 60 * 60;
 
 pub fn get_phase_reward(phase_id: u8) -> u64 {
     match phase_id {
@@ -108,6 +91,15 @@ pub mod squad_fall {
         state.reward_vault = ctx.accounts.reward_vault.key();
         state.total_rewards_claimed = 0;
         state.bump = game_state_bump;
+
+        // FIX: Verify that the game_state PDA is the mint authority of squad_mint
+        let mint_authority = ctx.accounts.squad_mint.mint_authority.clone()
+            .ok_or(SquadError::MintAuthorityNotSet)?;
+        require!(
+            mint_authority == ctx.accounts.game_state.key(),
+            SquadError::InvalidMintAuthority
+        );
+
         Ok(())
     }
 
@@ -131,11 +123,10 @@ pub mod squad_fall {
         time_seconds: u32,
         kills: u32,
         soldiers_alive: u8,
-        _server_signature: [u8; 64],
     ) -> Result<()> {
         let clock = Clock::get()?;
 
-        // FIX 1: Server authority must co-sign — prevents unauthenticated reward minting
+        // FIX 1: Server authority must co-sign
         require!(
             ctx.accounts.server_authority.key() == ctx.accounts.game_state.authority,
             SquadError::InvalidServerAuthority
@@ -148,7 +139,6 @@ pub mod squad_fall {
         require!(kills <= 100, SquadError::InvalidKills);
         require!(soldiers_alive <= 4, SquadError::InvalidSoldiersAlive);
 
-        // Anti-farming: Daily limit
         let player = &mut ctx.accounts.player_state;
         let today_start = (clock.unix_timestamp / 86400) * 86400;
         if clock.unix_timestamp - player.last_daily_reset >= 86400 {
@@ -165,7 +155,6 @@ pub mod squad_fall {
             phase.stars = stars;
             phase.completed_at = clock.unix_timestamp;
             phase.replay_count = 0;
-            // FIX 4: Set last_replay_at on first completion so first replay respects cooldown
             phase.last_replay_at = clock.unix_timestamp;
             player.total_phases_completed += 1;
         } else {
@@ -203,18 +192,15 @@ pub mod squad_fall {
         }
 
         if reward > 0 {
-            // FIX 3: Enforce reward pool limit
             let game_state = &mut ctx.accounts.game_state;
             let new_total = game_state.total_rewards_claimed
                 .checked_add(reward)
                 .ok_or(SquadError::Overflow)?;
             require!(new_total <= REWARD_POOL_TOTAL, SquadError::RewardPoolExhausted);
 
-            let seeds: &[&[u8]] = &[
-                b"game-state",
-                &ctx.accounts.game_state.key().to_bytes(),
-                &[ctx.accounts.game_state.bump],
-            ];
+            // FIX: Seeds must match the PDA derivation: [b"game-state"] with canonical bump
+            let bump = ctx.accounts.game_state.bump;
+            let seeds: &[&[u8]] = &[b"game-state", &[bump]];
             let signer_seeds: &[&[&[u8]]] = &[seeds];
 
             let cpi_accounts = MintTo {
@@ -311,10 +297,11 @@ pub mod squad_fall {
         stake.amount = 0;
         stake.unlock_requested_at = None;
 
+        let bump = stake.bump;
         let seeds: &[&[u8]] = &[
             b"stake-vault",
             &ctx.accounts.stake_account.key().to_bytes(),
-            &[stake.bump],
+            &[bump],
         ];
         let signer_seeds: &[&[&[u8]]] = &[seeds];
 
@@ -390,12 +377,11 @@ pub struct InitializePlayer<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(phase_id: u8, _stars: u8, _time_seconds: u32, _kills: u32, _soldiers_alive: u8, _server_signature: [u8; 64])]
+#[instruction(phase_id: u8, _stars: u8, _time_seconds: u32, _kills: u32, _soldiers_alive: u8)]
 pub struct CompletePhase<'info> {
     #[account(mut)]
     pub player: Signer<'info>,
 
-    // FIX 1: Server authority must co-sign the transaction
     pub server_authority: Signer<'info>,
 
     #[account(mut, seeds = [b"game-state"], bump = game_state.bump)]
@@ -417,7 +403,6 @@ pub struct CompletePhase<'info> {
     )]
     pub phase_completion: Account<'info, PhaseCompletion>,
 
-    // FIX 5: player_token_account must be a TokenAccount owned by the player and matching the squad mint
     #[account(
         mut,
         constraint = player_token_account.owner == player.key()
@@ -427,7 +412,6 @@ pub struct CompletePhase<'info> {
     )]
     pub player_token_account: Account<'info, TokenAccount>,
 
-    // FIX 5: squad_mint must match game_state.squad_mint
     #[account(
         constraint = squad_mint.key() == game_state.squad_mint
             @ SquadError::InvalidMint,
@@ -450,7 +434,6 @@ pub struct StakeTokens<'info> {
     #[account(mut)]
     pub player: Signer<'info>,
 
-    // FIX 5: player_token_account must be owned by the player
     #[account(
         mut,
         constraint = player_token_account.owner == player.key()
@@ -458,11 +441,12 @@ pub struct StakeTokens<'info> {
     )]
     pub player_token_account: Account<'info, TokenAccount>,
 
-    // FIX 5: stake_vault must be a PDA derived from stake_account
     #[account(
         mut,
         seeds = [b"stake-vault", stake_account.key().as_ref()],
         bump,
+        constraint = stake_vault.mint == game_state.squad_mint
+            @ SquadError::InvalidMint,
     )]
     pub stake_vault: Account<'info, TokenAccount>,
 
@@ -474,6 +458,14 @@ pub struct StakeTokens<'info> {
         bump = bump,
     )]
     pub stake_account: Account<'info, StakeAccount>,
+
+    #[account(
+        constraint = squad_mint.key() == game_state.squad_mint
+            @ SquadError::InvalidMint,
+    )]
+    pub squad_mint: Account<'info, Mint>,
+
+    pub game_state: Account<'info, GameState>,
 
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
@@ -510,15 +502,15 @@ pub struct WithdrawUnstaked<'info> {
     )]
     pub stake_account: Account<'info, StakeAccount>,
 
-    // FIX 5: stake_vault must be a PDA
     #[account(
         mut,
         seeds = [b"stake-vault", stake_account.key().as_ref()],
         bump,
+        constraint = stake_vault.mint == game_state.squad_mint
+            @ SquadError::InvalidMint,
     )]
     pub stake_vault: Account<'info, TokenAccount>,
 
-    // FIX 5: player_token_account must be owned by the player
     #[account(
         mut,
         constraint = player_token_account.owner == player.key()
@@ -592,8 +584,6 @@ pub enum SquadError {
     DailyLimitExceeded,
     #[msg("Phase still on cooldown")]
     CooldownActive,
-    #[msg("Invalid server proof")]
-    InvalidProof,
     #[msg("Invalid world number")]
     InvalidWorld,
     #[msg("Insufficient staked SQUAD")]
@@ -626,4 +616,8 @@ pub enum SquadError {
     InvalidStakeOwner,
     #[msg("Amount must be greater than zero")]
     InvalidAmount,
+    #[msg("Mint authority not set on squad_mint")]
+    MintAuthorityNotSet,
+    #[msg("Mint authority does not match game_state PDA")]
+    InvalidMintAuthority,
 }
