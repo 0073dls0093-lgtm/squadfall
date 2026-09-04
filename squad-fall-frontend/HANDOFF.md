@@ -1,69 +1,53 @@
 # HANDOFF — Squad Fall
 
-## Estado atual (verificado em 2026-09-03)
+## Estado atual (2026-09-04)
 
-### Implementado e funcional
-- **GDD** (`outputs/last-squad-gdd.pdf`): 11 páginas, 30 fases, tokenomics, arquitetura, roadmap.
-- **Anchor Program** (`squad-fall/programs/squad-fall/src/lib.rs`): 580 linhas Rust — token mint, recompensas por fase, staking, anti-farming, cooldown, validação de assinatura de servidor.
-- **Testes** (`squad-fall/tests/squad-fall.ts`): 16 cenários cobrindo init, stake, complete phase, cooldown, edge cases.
-- **Front-end** (`squad-fall-frontend/`): Next.js 14 + Phaser 3 + Phantom Wallet + Zustand.
-  - WalletProvider, HUD, GameScene (movimento, tiro, inimigos, extração, vitória), page.tsx (menu/jogo/vitória), store, layout, globals.css.
-  - 3 fases jogáveis (1-1, 1-2, 1-3) das 30 planejadas.
+### Mundo 1 completo (1-1 a 1-6)
 
-### NÃO implementado / bloqueado
-- **Token $SQUAD não deployado on-chain** — código pronto, mas `anchor deploy` requer Solana CLI + Anchor CLI instalados na máquina local.
-- **Testes nunca executados** — mesma razão (precisa de `anchor test` local).
-- **Recompensas on-chain não integradas ao cliente** — o jogo atualiza um saldo mockado em Zustand. A integração real exige: (1) deploy do contrato, (2) servidor de validação que assina o payload da fase, (3) chamada `completePhase` no programa a partir do front-end.
-- **Fases 4-30**: não construídas no `PHASES` do GameScene.
-- **Sem áudio, sem sprites** — soldados e inimigos são retângulos coloridos.
-- **Sem mobile/touch** — só WASD + mouse.
-- **Sem auditoria** do programa Anchor.
+- **Fase 1-1**: Extração simples
+- **Fase 1-2**: Tiro ao alvo (8 alvos bullseye, kill_then_extract)
+- **Fase 1-3**: Floresta (cobertura de parede, tiros bloqueados)
+- **Fase 1-4**: Minas terrestres (7 minas, 3 de dano ao pisar)
+- **Fase 1-5**: Reféns (3 reféns, seguem o esquadrão após resgate)
+- **Fase 1-6**: Boss General Gorila (veículo blindado 2x2, HP bar, spawna ondas de soldados)
 
-## Continuidade — próxima tarefa
+### Mecânicas implementadas
 
-Antes de declarar uma fase ou sistema concluído, consultar `../docs/DEFINICAO-JOGO-REAL.md`. Configurações de fases e build aprovado não substituem validação no navegador; placeholders devem continuar identificados como placeholders.
+- Movimento WASD + clique, tiro com clique direito
+- Fogo inimigo bidirecional (soldado/elite atiram no jogador)
+- Colisão de parede com slide
+- Morte de soldado com lápide + sangue + áudio
+- Tela de vitória (estrelas, tempo, kills, sobreviventes, reward mock)
+- Tela de falha (esquadrão eliminado)
+- Áudio procedural (shoot, hit, explosion, victory, soldierHit, soldierDeath)
+- Barra de vida em soldados e inimigos
+- Recompensas simuladas localmente (mock em Zustand)
 
-O cronograma oficial está em `../docs/CRONOGRAMA.md`: a primeira versão deve entregar 10 fases completas. As fases 11–30 serão adicionadas depois, por atualizações.
+### Web3 CONGELADO
 
-**Regra de execução:** a IA que estiver trabalhando nesta sessão é a responsável principal. Ela deve continuar automaticamente enquanto houver crédito/capacidade disponível, dividir o trabalho em partes pequenas e, ao concluir cada parte, testar, atualizar `docs/CONTEXTO.md`, fazer commit e executar `git push` imediatamente. Não deve pedir ao usuário para chamar outra IA nem deixar o push para depois. Outra IA só entra quando o usuário informar explicitamente que esta sessão terminou, ficou sem crédito ou está bloqueada.
+- Contrato Anchor experimental, `anchor test` nunca executado
+- `stake_vault` pode ter incompatibilidade PDA vs ATA no teste
+- Não fazer deploy na Solana, não corrigir stake_vault, não adicionar testes Web3
+- Prioridade: jogo sem blockchain
 
-1. **Instalar ferramentas locais** (Solana CLI, Anchor CLI, Node.js) — ver README.md.
-2. **`anchor test`** em `squad-fall/` para validar os 16 cenários.
-3. **`anchor deploy --provider.cluster devnet`** para subir o contrato e criar o token $SQUAD de verdade.
-4. **Integrar recompensa on-chain no GameScene**: após `phaseComplete()`, enviar payload ao servidor de validação, receber prova assinada, chamar `program.methods.completePhase(...)` via `@coral-xyz/anchor` no front-end.
-5. **Construir fases 4-30** no objeto `PHASES` do GameScene (dados estão no GDD).
-6. **Adicionar sprites, áudio, FX**.
-7. **Mobile/touch**.
-8. **Auditoria de segurança** antes do Mainnet.
+### Próxima tarefa clara
 
-## Economia do token
+1. Validar runtime no navegador (ciclo completo das fases)
+2. Corrigir bugs de gameplay
+3. Criar fases 2-1 a 2-4 (Mundo 2)
+4. Melhorar placeholders principais
+5. Preparar build para hospedagem
 
-- Supply: 500.000.000 $SQUAD (9 decimais)
-- Pool de recompensas: 40% (200M)
-- Staking obrigatório para Mundo 3+ (100/250/500 SQUAD acumulado)
-- Cooldown de 30 min entre replays
-- Replay paga 10% do base
-- Queima: renomear soldado, skins, taxas de torneio
+### Antes de declarar uma fase concluída
 
-## Preservação do trabalho
+Consultar `../docs/DEFINICAO-JOGO-REAL.md`. Configurações de fase e build aprovado não substituem validação no navegador.
 
-- Todo o código-fonte está no repositório GitHub `0073dls0093-lgtm/squadfall`.
-- O GDD está em `outputs/last-squad-gdd.pdf` (link de download ativo).
-- Não há segredos, chaves privadas, ou mnemonics em nenhum arquivo.
-- Para outra IA continuar: ler README.md, este HANDOFF.md, e o GDD. O estado é auto-contido.
+### Cronograma oficial
 
-## Novas ideias (não implementadas)
-
-| Ideia | Benefício | Custo | Risco | Status |
-|-------|-----------|-------|------|--------|
-| Modo cooperativo online | Retenção, social | Alto (servidor de jogo) | Médio | Backlog |
-| Torneios PvP sazonais | Competitividade, queima | Médio | Baixo | Backlog |
-| Solana Mobile (Saga) | Touch UI nativa | Médio | Baixo | Backlog |
-| DAO de governança | Comunidade decide balanceamento | Baixo | Médio | Backlog |
-| Skin NFT marketplace | Receita, utilidade do token | Médio | Baixo | Backlog |
+`../docs/CRONOGRAMA.md`: primeira versão terá 10 fases completas (até 2-4).
 
 ## GitHub
 
 - Repositório: `https://github.com/0073dls0093-lgtm/squadfall`
-- Commit inicial: `checkpoint: anchor program + frontend + GDD + docs`
 - Branch: `main`
+- Último commit: `9cfe9e8` — boss General Gorila (fase 1-6)
