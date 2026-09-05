@@ -1,4 +1,4 @@
-// GameScene.ts — Phaser top-down tactical shooter — 10 phases v1.0
+// GameScene.ts — Phaser top-down tactical shooter — 10 phases v1.0 + improved sprites
 import Phaser from "phaser";
 import { useGameStore } from "@/store/useGameStore";
 
@@ -209,13 +209,11 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Sandstorm overlay \u2014 reduces visibility for phase 2-1
     if (this.phaseData.sandstorm) {
       const storm = this.add.rectangle(0, 0, cam.width, cam.height, 0xd4a574, 0.25).setOrigin(0).setDepth(40);
       this.tweens.add({ targets: storm, alpha: { from: 0.2, to: 0.35 }, duration: 2000, yoyo: true, repeat: -1 });
     }
 
-    // Patrol enemies \u2014 assign patrol data to each enemy
     if (this.phaseData.patrol) {
       for (let i = 0; i < this.enemies.length; i++) {
         const e = this.enemies[i];
@@ -227,7 +225,6 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Sniper towers \u2014 torres com snipers (fase 2-4)
     if (this.phaseData.sniperTowers) {
       for (const t of this.phaseData.sniperTowers) {
         const tx = t.x * TILE + TILE/2, ty = t.y * TILE + TILE/2;
@@ -246,7 +243,6 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Convoy \u2014 jipe autom\u00e1tico que percorre uma rota (fase 2-2)
     if (this.phaseData.convoy) {
       const route = this.phaseData.convoy.route;
       const start = route[0];
@@ -260,7 +256,6 @@ export class GameScene extends Phaser.Scene {
       this.convoyProgress = 0;
     }
 
-    // Boss \u2014 General Gorila (ve\u00edculo blindado que spawna ondas de soldados)
     if (this.phaseData.boss) {
       const bx = this.phaseData.boss.x * TILE + TILE/2, by = this.phaseData.boss.y * TILE + TILE/2;
       const hull = this.add.rectangle(0, 0, TILE*2-6, TILE*2-6, 0x3a3a3a);
@@ -300,13 +295,21 @@ export class GameScene extends Phaser.Scene {
     }
   }
 
+  // Improved soldier with detailed body parts
   createSoldier(x: number, y: number, name: string): Phaser.GameObjects.Container {
-    const body = this.add.rectangle(0, 0, TILE-14, TILE-14, C_SOLDIER);
-    body.setStrokeStyle(2, 0x000000, 0.4);
-    const helmet = this.add.rectangle(0, -14, 16, 7, 0x1a3a1a);
-    const gun = this.add.rectangle(15, 0, 13, 4, 0x444444);
-    const tag = this.add.text(0, -26, name, { fontSize:"9px", color:"#cfc", fontFamily:"monospace", fontStyle:"bold" }).setOrigin(0.5);
-    const s = this.add.container(x, y, [body, helmet, gun, tag]);
+    const torso = this.add.ellipse(0, 2, TILE-20, TILE-14, 0x2a6a2a);
+    torso.setStrokeStyle(1, 0x1a4a1a, 0.6);
+    const head = this.add.circle(0, -10, 8, 0xcc9966);
+    head.setStrokeStyle(1, 0x885533, 0.5);
+    const helmet = this.add.arc(0, -10, 9, 200, 340, false, 0x1a3a1a, 0.8);
+    const armL = this.add.rectangle(-10, 2, 5, 10, 0x226622);
+    const armR = this.add.rectangle(10, 2, 5, 10, 0x226622);
+    const gun = this.add.rectangle(14, 0, 16, 3, 0x333322);
+    const muzzle = this.add.rectangle(20, 0, 3, 3, 0x222211);
+    const legL = this.add.rectangle(-5, 14, 6, 8, 0x1a3a1a);
+    const legR = this.add.rectangle(5, 14, 6, 8, 0x1a3a1a);
+    const tag = this.add.text(0, -22, name, { fontSize:"8px", color:"#cfc", fontFamily:"monospace", fontStyle:"bold" }).setOrigin(0.5);
+    const s = this.add.container(x, y, [torso, legL, legR, armL, armR, gun, muzzle, head, helmet, tag]);
     s.setData("health", SOLDIER_MAX_HP);
     s.setData("maxHealth", SOLDIER_MAX_HP);
     s.setData("name", name);
@@ -314,10 +317,12 @@ export class GameScene extends Phaser.Scene {
     return s;
   }
 
+  // Improved enemy with detailed body parts
   createEnemy(x: number, y: number, type: "target" | "soldier" | "elite"): Phaser.GameObjects.Container {
     let hp = type === "target" ? 2 : type === "soldier" ? 3 : 4;
     const color = type === "target" ? C_TARGET : type === "soldier" ? C_ENEMY : 0x882222;
     const accentColor = type === "target" ? 0xcc0000 : 0x440000;
+
     if (type === "target") {
       const outer = this.add.circle(0, 0, TILE/2 - 4, 0xffffff);
       outer.setStrokeStyle(2, 0x000000, 0.3);
@@ -328,12 +333,18 @@ export class GameScene extends Phaser.Scene {
       c.setData("health", hp); c.setData("maxHealth", hp); c.setData("type", "target");
       return c;
     } else {
-      const body = this.add.rectangle(0, 0, TILE-14, TILE-14, color);
-      body.setStrokeStyle(2, 0x000000, 0.4);
-      const helmet = this.add.rectangle(0, -14, 16, 7, accentColor);
-      const gun = this.add.rectangle(-15, 0, 12, 4, 0x333333);
-      const tag = this.add.text(0, -26, type === "elite" ? "ELITE" : "INIM", { fontSize:"8px", color:"#fcc", fontFamily:"monospace" }).setOrigin(0.5);
-      const c = this.add.container(x, y, [body, helmet, gun, tag]);
+      const torso = this.add.ellipse(0, 2, TILE-20, TILE-14, color);
+      torso.setStrokeStyle(1, accentColor, 0.6);
+      const head = this.add.circle(0, -10, 8, 0xcc9966);
+      head.setStrokeStyle(1, 0x885533, 0.5);
+      const helmet = this.add.arc(0, -10, 9, 200, 340, false, accentColor, 0.8);
+      const armL = this.add.rectangle(-10, 2, 5, 10, color);
+      const armR = this.add.rectangle(10, 2, 5, 10, color);
+      const gun = this.add.rectangle(-14, 0, 14, 3, 0x333322);
+      const legL = this.add.rectangle(-5, 14, 6, 8, accentColor);
+      const legR = this.add.rectangle(5, 14, 6, 8, accentColor);
+      const tag = this.add.text(0, -22, type === "elite" ? "ELITE" : "INIM", { fontSize:"7px", color:"#fcc", fontFamily:"monospace" }).setOrigin(0.5);
+      const c = this.add.container(x, y, [torso, legL, legR, armL, armR, gun, head, helmet, tag]);
       c.setData("health", hp); c.setData("maxHealth", hp); c.setData("type", type);
       return c;
     }
@@ -396,7 +407,6 @@ export class GameScene extends Phaser.Scene {
 
     for (const e of this.enemies) {
       if (!e.active) continue;
-      // Patrol movement \u2014 enemies circle around their base position
       if (e.getData("patrol")) {
         let angle = (e.getData("patrolAngle") as number) + 0.015;
         e.setData("patrolAngle", angle);
@@ -431,7 +441,6 @@ export class GameScene extends Phaser.Scene {
       if (leader && leader.active && Phaser.Math.Distance.Between(leader.x, leader.y, this.extractionPos.x*TILE+TILE/2, this.extractionPos.y*TILE+TILE/2) < TILE) { this.phaseComplete(); }
     }
 
-    // Boss logic
     if (this.bossObject && this.bossObject.active && this.phaseData.boss) {
       const boss = this.bossObject;
       const bossHp = boss.getData("health") as number;
@@ -463,7 +472,6 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Sniper towers \u2014 atiram no soldado mais pr\u00f3ximo, dano alto, cad\u00eancia lenta
     for (const tower of this.sniperTowerObjects) {
       if (!tower.active) continue;
       const lastShot = (tower.getData("lastShot") as number) || 0;
@@ -494,7 +502,6 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Convoy movement \u2014 jipe percorre a rota automaticamente
     if (this.convoyObject && this.convoyObject.active && this.phaseData.convoy) {
       const route = this.phaseData.convoy.route;
       const speed = this.phaseData.convoy.speed;
@@ -513,7 +520,6 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Hostage rescue and follow logic
     for (const hostage of this.hostageObjects) {
       if (!hostage.active) continue;
       const rescued = hostage.getData("rescued") as boolean;
@@ -549,7 +555,6 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Ammo pickup \u2014 soldier walks over ammo box, recovers shots
     for (const ammo of this.ammoPickups) {
       if (!ammo.active) continue;
       for (const s of this.squad) {
@@ -563,7 +568,6 @@ export class GameScene extends Phaser.Scene {
       }
     }
 
-    // Mine detection
     for (const mine of this.mineObjects) {
       if (!mine.active || !mine.getData("armed")) continue;
       const mineX = mine.x, mineY = mine.y;
@@ -629,7 +633,6 @@ export class GameScene extends Phaser.Scene {
   shoot(wx: number, wy: number) {
     const shooter = this.squad.find(s => s.active && s.getData("alive"));
     if (!shooter) return;
-    // Low ammo: limit shots
     if (this.phaseData.lowAmmo && this.ammoCount <= 0) return;
     if (this.phaseData.lowAmmo) this.ammoCount--;
     const a = Math.atan2(wy - shooter.y, wx - shooter.x);
@@ -648,13 +651,11 @@ export class GameScene extends Phaser.Scene {
           if (!e.active) continue;
           if (Phaser.Math.Distance.Between(b.x, b.y, e.x, e.y) < TILE/2) { this.hitEnemy(e); b.destroy(); return; }
         }
-        // Boss hit detection
         if (this.bossObject && this.bossObject.active) {
           if (Phaser.Math.Distance.Between(b.x, b.y, this.bossObject.x, this.bossObject.y) < TILE) {
             this.hitBoss(); b.destroy(); return;
           }
         }
-        // Sniper tower hit detection
         for (const tower of this.sniperTowerObjects) {
           if (!tower.active) continue;
           if (Phaser.Math.Distance.Between(b.x, b.y, tower.x, tower.y) < TILE * 0.6) {
@@ -709,7 +710,6 @@ export class GameScene extends Phaser.Scene {
         ring.setStrokeStyle(3, 0xffffff, 0.8);
         this.tweens.add({ targets: ring, radius: 40, alpha: 0, duration: 300, onComplete: () => ring.destroy() });
       }
-      // Low ammo: drop ammo pickup on enemy death
       if (this.phaseData.lowAmmo) {
         const ammoBox = this.add.container(px, py, [
           this.add.rectangle(0, 0, 16, 12, 0x00ccff).setStrokeStyle(1, 0x0088aa),
