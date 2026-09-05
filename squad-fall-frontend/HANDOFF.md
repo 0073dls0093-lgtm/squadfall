@@ -2,7 +2,7 @@
 
 ## Estado atual (2026-09-04)
 
-### 10 fases implementadas com mecânicas reais (NÃO validadas no navegador)
+### 10 fases implementadas com mecanicas reais (NÃO validadas no navegador)
 
 - **1-1**: Extração simples
 - **1-2**: Tiro ao alvo (8 alvos bullseye)
@@ -15,14 +15,12 @@
 - **2-3**: Oásis Sangrento (munição escassa, limite de tiros, drops de caixas de munição ao matar inimigos)
 - **2-4**: Torres Gêmeas (2 torres de sniper, dano 2, alcance longo, cadência 3.5s, destrutíveis pelo jogador)
 
-### Verificação objetiva do código
+### Sprites melhorados (v0.5)
 
-Confirmado por inspeção direta do GameScene.ts (1079 linhas):
-- `patrol: true` → lógica de movimento circular no update()
-- `sandstorm: true` → overlay amarelo com alpha pulsante no create()
-- `convoy: { route, speed }` → jipe criado no create(), movimento por interpolação no update()
-- `lowAmmo: true` → ammoCount decrementa no shoot(), caixas de munição dropam ao matar inimigos, coleta por proximidade no update()
-- `sniperTowers: [{x,y,hp}]` → torres criadas no create(), atiram no soldado mais próximo no update(), jogador destrói atirando
+- Soldados: torso elíptico (uniforme verde), cabeça circular (tom de pele), capacete (arco), braços, pernas, rifle com cano
+- Inimigos: mesmo estilo detalhado, coloridos por tipo (soldado vermelho, elite vermelho escuro)
+- Alvos de treino: bullseye (anis concêntricos)
+- Outros elementos (boss, jipe, minas, lápide, torres, reféns) ainda são placeholders simplificados
 
 ### Mecânicas globais
 
@@ -35,7 +33,6 @@ Confirmado por inspeção direta do GameScene.ts (1079 linhas):
 - Áudio procedural (shoot, hit, explosion, victory, soldierHit, soldierDeath)
 - Barra de vida em soldados e inimigos
 - Recompensas simuladas localmente (mock em Zustand)
-- Todos os elementos visuais são placeholders (retângulos/círculos/textos)
 
 ### Web3 CONGELADO
 
@@ -47,7 +44,7 @@ Confirmado por inspeção direta do GameScene.ts (1079 linhas):
 
 1. Validar no navegador (precisa de npm install + npm run dev local)
 2. Corrigir bugs de gameplay encontrados
-3. Substituir placeholders por sprites progressivamente
+3. Melhorar boss, jipe, minas, lápide, torres e reféns visualmente
 4. Preparar build para hospedagem
 
 ### Cronograma oficial
@@ -58,3 +55,4 @@ Confirmado por inspeção direta do GameScene.ts (1079 linhas):
 
 - Repositório: `https://github.com/0073dls0093-lgtm/squadfall`
 - Branch: `main`
+- Último commit: `18981a2` — v0.5: sprites melhorados
