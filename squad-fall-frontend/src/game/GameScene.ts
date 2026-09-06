@@ -325,7 +325,7 @@ export class GameScene extends Phaser.Scene {
       bar.setPosition(soldier.x, soldier.y - 30);
       const hp = soldier.getData("health") as number; const maxHp = soldier.getData("maxHealth") as number;
       const ratio = Math.max(0, hp / maxHp); bar.setScale(ratio, 1);
-      bar.setFillColor(ratio > 0.5 ? 0x00ff00 : ratio > 0.25 ? 0xffaa00 : 0xff0000);
+      bar.setFillStyle(ratio > 0.5 ? 0x00ff00 : ratio > 0.25 ? 0xffaa00 : 0xff0000, 1);
     }
 
     for (let i = 0; i < this.enemyHealthBars.length; i++) {
