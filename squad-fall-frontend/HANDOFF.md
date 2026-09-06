@@ -1,6 +1,6 @@
 # HANDOFF — Squad Fall
 
-## Estado atual (2026-09-04)
+## Estado atual (2026-09-06)
 
 ### 10 fases implementadas com mecanicas reais (NÃO validadas no navegador)
 
@@ -15,12 +15,17 @@
 - **2-3**: Oásis Sangrento (munição escassa, limite de tiros, drops de caixas de munição ao matar inimigos)
 - **2-4**: Torres Gêmeas (2 torres de sniper, dano 2, alcance longo, cadência 3.5s, destrutíveis pelo jogador)
 
-### Sprites melhorados (v0.5)
+### Sprites melhorados (v0.6)
 
 - Soldados: torso elíptico (uniforme verde), cabeça circular (tom de pele), capacete (arco), braços, pernas, rifle com cano
 - Inimigos: mesmo estilo detalhado, coloridos por tipo (soldado vermelho, elite vermelho escuro)
 - Alvos de treino: bullseye (anis concêntricos)
-- Outros elementos (boss, jipe, minas, lápide, torres, reféns) ainda são placeholders simplificados
+- Minas: caixa externa escura + disco interno + 4 raios de pressão + luz vermelha piscante
+- Reféns: civil com torso branco, cabeça, cabelo, braços erguidos (rendição), pernas
+- Torres de sniper: base de concreto, pilar, ninho, atirador, cano do rifle, glint vermelho
+- Lápide: arco no topo + cruz + nome do soldado
+- Boss General Gorila: casco elíptico, esteiras laterais, torreta hexagonal, canhão
+- Jipe: chassis, cabine, rodas, antena
 
 ### Mecânicas globais
 
@@ -44,8 +49,7 @@
 
 1. Validar no navegador (precisa de npm install + npm run dev local)
 2. Corrigir bugs de gameplay encontrados
-3. Melhorar boss, jipe, minas, lápide, torres e reféns visualmente
-4. Preparar build para hospedagem
+3. Preparar build para hospedagem
 
 ### Cronograma oficial
 
@@ -55,4 +59,4 @@
 
 - Repositório: `https://github.com/0073dls0093-lgtm/squadfall`
 - Branch: `main`
-- Último commit: `18981a2` — v0.5: sprites melhorados
+- Último commit: `e6075ed` — fix: GameScene.ts v0.6 — conteúdo real substitui placeholder
