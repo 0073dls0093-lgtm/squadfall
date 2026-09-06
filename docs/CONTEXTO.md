@@ -1,18 +1,31 @@
 # CONTEXTO — Squad Fall
 
-**Última atualização:** 2026-09-06 (v0.6 — todos os sprites detalhados)
+**Última atualização:** 2026-09-06 (fix setFillColor → setFillStyle, build blocker)
 **Repositório:** https://github.com/0073dls0093-lgtm/squadfall
+**Último commit GameScene.ts:** `e48ea49` (SHA do arquivo: `dcd91e4`)
 
 ---
 
-## 0. PRIORIDADE ATUAL — JOGO SEM BLOCKCHAIN
+## 0. PRIORIDADE ATUAL — FAZER O BUILD PASSAR
 
 Web3 CONGELADO. Recompensas simuladas localmente (mock Zustand).
 
+**Estado real do build:**
+1. `npm install` — passou (com 106 vulnerabilidades, 1 crítica — não rodar `npm audit fix --force` agora)
+2. `npm run build` — FALHOU inicialmente com erro TypeScript:
+   - `./src/game/GameScene.ts:328:11`
+   - `Property 'setFillColor' does not exist on type 'Rectangle'`
+3. **Correção aplicada e publicada na main** (commit `e48ea49`):
+   - `bar.setFillColor(cor)` → `bar.setFillStyle(cor, 1)` nas barras de vida dos soldados
+   - Verificado diretamente no GitHub: 0 ocorrências de `setFillColor`, 5 de `setFillStyle`
+   - Todas as 10 mecânicas intactas (patrol, sandstorm, convoy, lowAmmo, sniperTowers, boss, mines, hostages, 30 fases, 6 áudios)
+4. **Build precisa ser reexecutado externamente** — este ambiente não tem Node.js/npm
+
 **Próximas prioridades:**
-1. Validar no navegador (bloqueado — sem Node.js/npm/navegador neste ambiente)
-2. Corrigir bugs de gameplay (após validação)
-3. Preparar build para hospedagem
+1. Reexecutar `cd squad-fall-frontend && npm run build` em ambiente local
+2. Se houver outros erros TypeScript, corrigir
+3. Validar no navegador (`npm run dev`)
+4. Preparar build para hospedagem
 
 ---
 
@@ -35,12 +48,16 @@ Web3 CONGELADO. Recompensas simuladas localmente (mock Zustand).
 
 ### Verificação objetiva das mecânicas 2-1 a 2-4
 
-Confirmado por inspeção direta do código (GameScene.ts):
+Confirmado por inspeção direta do código (GameScene.ts, 633 linhas):
 - **2-1 Patrulha**: `patrol: true` na config → inimigos recebem `baseX/baseY/patrolAngle/patrolRadius` no create() → movimento circular a cada frame no update()
 - **2-1 Tempestade**: `sandstorm: true` na config → overlay amarelo com alpha pulsante criado no create()
 - **2-2 Comboio**: `convoy: { route, speed }` na config → jipe criado no create() → jipe percorre rota interpolando entre pontos no update()
 - **2-3 Munição**: `lowAmmo: true` na config → ammoCount limita tiros no shoot() → caixas de munição dropam ao matar inimigos → coleta por proximidade no update()
 - **2-4 Snipers**: `sniperTowers: [{x,y,hp}]` na config → torres criadas com scope piscante no create() → atiram no soldado mais próximo, dano 2, cadência 3.5s no update() → jogador destrói atirando
+
+### Observação sobre contagem de linhas
+
+O GameScene.ts atual tem 633 linhas (49.5 KB). Referências anteriores a "1079 linhas" eram de uma cópia local mais verbosa, funcionalmente equivalente — a versão atual usa formatação condensada (múltiplas declarações por linha) mas **nenhuma mecânica foi perdida**. Todas as 10 mecânicas de fase + boss + 30 configs + 6 métodos de áudio estão presentes e verificadas.
 
 ### Sprites detalhados (v0.6 — todos os elementos)
 
@@ -63,7 +80,7 @@ Confirmado por inspeção direta do código (GameScene.ts):
 - Tela de vitória (estrelas, tempo, kills, sobreviventes, reward mock)
 - Tela de falha (esquadrão eliminado)
 - Áudio procedural (shoot, hit, explosion, victory, soldierHit, soldierDeath)
-- Barra de vida em soldados e inimigos
+- Barra de vida em soldados e inimigos (usando `setFillStyle` — API compatível com Phaser)
 - Boss com HP bar e spawn de ondas
 - Patrulha de inimigos (movimento circular)
 - Tempestade de areia (overlay visual com alpha pulsante)
@@ -77,14 +94,16 @@ Confirmado por inspeção direta do código (GameScene.ts):
 - Contrato Anchor experimental, anchor test nunca executado
 - stake_vault pode ter incompatibilidade PDA vs ATA
 - Não fazer deploy, não corrigir stake_vault, não adicionar testes Web3
+- Sem alterações em Solana, Anchor, Phantom ou qualquer código Web3
 
 ---
 
 ## 2. Próxima Tarefa Clara
 
-1. **Validar no navegador** — precisa de `npm install && npm run dev` em ambiente local
-2. **Corrigir bugs** encontrados durante a validação
-3. **Preparar build para hospedagem**
+1. **Reexecutar `npm run build`** externamente e reportar o resultado real (não declarar aprovado sem o output do comando)
+2. **Validar no navegador** — `npm run dev` em ambiente local
+3. **Corrigir bugs** encontrados durante a validação
+4. **Preparar build para hospedagem**
 
 ---
 
@@ -110,6 +129,7 @@ Confirmado por inspeção direta do código (GameScene.ts):
 - Web3 CONGELADO
 - Todos os sprites agora são figuras detalhadas (não mais quadrados/círculos simples)
 - Não considerar pronto para o público até validar no navegador
+- API Phaser: usar `setFillStyle(cor, alpha)` em vez de `setFillColor(cor)` (este último não existe no tipo `Rectangle`)
 
 ---
 
@@ -118,3 +138,13 @@ Confirmado por inspeção direta do código (GameScene.ts):
 - Supply: 500M $SQUAD — planejado, não deployado
 - Pool de recompensas: 40% (200M) — planejado, não deployado
 - Atualmente: saldo mockado em Zustand
+
+---
+
+## 5. Build — Histórico Real
+
+- **2026-09-06**: `npm install` passou (106 vulnerabilidades, 1 crítica — NÃO rodar `npm audit fix --force`)
+- **2026-09-06**: `npm run build` FALHOU — `Property 'setFillColor' does not exist on type 'Rectangle'` (linha 328)
+- **2026-09-06**: Correção publicada na main (commit `e48ea49`) — `setFillColor` → `setFillStyle(cor, 1)`
+- **2026-09-06**: Verificação direta no GitHub confirma 0 `setFillColor`, 5 `setFillStyle`, todas as mecânicas intactas
+- **PENDENTE**: reexecutar `npm run build` externamente para confirmar que o erro sumiu (este ambiente não tem Node.js)
