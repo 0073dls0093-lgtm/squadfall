@@ -1,6 +1,6 @@
 # CONTEXTO — Squad Fall
 
-**Última atualização:** 2026-09-04 (GameScene.ts com 10 fases pushado)
+**Última atualização:** 2026-09-06 (v0.6 — todos os sprites detalhados)
 **Repositório:** https://github.com/0073dls0093-lgtm/squadfall
 
 ---
@@ -12,8 +12,7 @@ Web3 CONGELADO. Recompensas simuladas localmente (mock Zustand).
 **Próximas prioridades:**
 1. Validar no navegador (bloqueado — sem Node.js/npm/navegador neste ambiente)
 2. Corrigir bugs de gameplay (após validação)
-3. Substituir placeholders por sprites progressivamente
-4. Preparar build para hospedagem
+3. Preparar build para hospedagem
 
 ---
 
@@ -36,12 +35,24 @@ Web3 CONGELADO. Recompensas simuladas localmente (mock Zustand).
 
 ### Verificação objetiva das mecânicas 2-1 a 2-4
 
-Confirmado por inspeção direta do código (GameScene.ts, 1079 linhas):
+Confirmado por inspeção direta do código (GameScene.ts):
 - **2-1 Patrulha**: `patrol: true` na config → inimigos recebem `baseX/baseY/patrolAngle/patrolRadius` no create() → movimento circular a cada frame no update()
 - **2-1 Tempestade**: `sandstorm: true` na config → overlay amarelo com alpha pulsante criado no create()
 - **2-2 Comboio**: `convoy: { route, speed }` na config → jipe criado no create() → jipe percorre rota interpolando entre pontos no update()
 - **2-3 Munição**: `lowAmmo: true` na config → ammoCount limita tiros no shoot() → caixas de munição dropam ao matar inimigos → coleta por proximidade no update()
 - **2-4 Snipers**: `sniperTowers: [{x,y,hp}]` na config → torres criadas com scope piscante no create() → atiram no soldado mais próximo, dano 2, cadência 3.5s no update() → jogador destrói atirando
+
+### Sprites detalhados (v0.6 — todos os elementos)
+
+- **Soldados**: torso elíptico (uniforme verde), cabeça circular (tom de pele), capacete (arco), braços, pernas, rifle com cano
+- **Inimigos**: mesmo estilo detalhado, coloridos por tipo (soldado vermelho, elite vermelho escuro)
+- **Alvos de treino**: bullseye (anis concêntricos)
+- **Minas**: caixa externa escura + disco interno elevado + 4 raios de pressão + luz vermelha piscante central
+- **Reféns**: civil com torso branco, cabeça (tom de pele), cabelo, braços erguidos (rendição), pernas
+- **Torres de sniper**: base de concreto larga, pilar, ninho no topo, atirador, cano do rifle, glint vermelho do scope
+- **Lápide**: arco no topo + base retangular + cruz + nome do soldado
+- **Boss General Gorila**: casco elíptico, esteiras laterais, torreta hexagonal, canhão com boca
+- **Jipe**: chassis elíptico, cabine, duas rodas, antena
 
 ### Mecânicas globais implementadas
 
@@ -60,7 +71,6 @@ Confirmado por inspeção direta do código (GameScene.ts, 1079 linhas):
 - Munição escassa + drops de inimigos (caixas azuis)
 - Torres de sniper (dano 2, alcance longo, cadência lenta 3.5s, destrutíveis)
 - Recompensas simuladas localmente (mock em Zustand)
-- Todos os elementos são placeholders (retângulos/círculos/textos)
 
 ### Web3 CONGELADO
 
@@ -74,8 +84,7 @@ Confirmado por inspeção direta do código (GameScene.ts, 1079 linhas):
 
 1. **Validar no navegador** — precisa de `npm install && npm run dev` em ambiente local
 2. **Corrigir bugs** encontrados durante a validação
-3. **Substituir placeholders por sprites** — soldados, inimigos, boss, veículos, cenários, efeitos
-4. **Preparar build para hospedagem**
+3. **Preparar build para hospedagem**
 
 ---
 
@@ -86,20 +95,21 @@ Confirmado por inspeção direta do código (GameScene.ts, 1079 linhas):
 - Áudio procedural: Web Audio API
 - kill_then_extract: matar todos antes de extrair
 - Alvos de treino como bullseye
-- Lápide com nome
+- Lápide com nome (v0.6: arco no topo)
 - Colisão de parede com slide
-- Minas visíveis com luz vermelha
+- Minas visíveis com luz vermelha (v0.6: disco + raios de pressão)
 - Fogo inimigo bidirecional
-- Boss General Gorila: veículo blindado, spawna ondas
+- Boss General Gorila: veículo blindado, spawna ondas (v0.6: casco + esteiras + torreta hexagonal)
 - Patrulha: inimigos circulam posição base
 - Tempestade de areia: overlay amarelo com alpha pulsante
-- Comboio: jipe percorre rota automaticamente
+- Comboio: jipe percorre rota automaticamente (v0.6: chassis + cabine + rodas + antena)
 - Munição escassa: limite de tiros + drops de inimigos
-- Torres de sniper: dano 2, alcance longo, cadência 3.5s, destrutíveis
+- Torres de sniper: dano 2, alcance longo, cadência 3.5s, destrutíveis (v0.6: base de concreto + ninho + atirador + rifle)
+- Reféns: civis com braços erguidos (v0.6: torso branco + cabelo + pose de rendição)
 - Cronograma de 10 fases (até 2-4)
 - Web3 CONGELADO
-- Placeholders ativos: quadrados/círculos para todos os elementos visuais
-- Não considerar pronto para o público enquanto placeholders estiverem ativos
+- Todos os sprites agora são figuras detalhadas (não mais quadrados/círculos simples)
+- Não considerar pronto para o público até validar no navegador
 
 ---
 
